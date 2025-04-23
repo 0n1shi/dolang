@@ -1,3 +1,6 @@
+mod lexer;
+mod token;
+
 use std::io::{self, Write};
 
 fn main() {
@@ -22,6 +25,17 @@ fn main() {
             break; // Exit the loop on "exit"
         }
 
+        let mut lexer = lexer::Lexer::new(trimmed_input);
+        let mut tokens = Vec::new();
+        loop {
+            let token = lexer.next_token();
+            if token == token::Token::EOF {
+                break; // Stop on EOF
+            }
+            tokens.push(token);
+        }
+
         println!("You entered: {}", trimmed_input);
+        println!("Tokens: {:?}", tokens);
     }
 }
