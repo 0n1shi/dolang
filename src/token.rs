@@ -39,5 +39,6 @@ pub enum Token {
     Multiply,           // *
     Divide,             // /
     Modulus,            // %
+    Invalid,            // invalid token
     EOF,
 }
