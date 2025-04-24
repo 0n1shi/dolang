@@ -8,6 +8,7 @@ pub enum Token {
     In,                 // in
     Match,              // match
     Pipe,               // |
+    ForwardPipe,        // |>
     Arrow,              // ->
     Return,             // return
     Assign,             // =
@@ -24,12 +25,12 @@ pub enum Token {
     False,              // false
     Comma,              // ,
     Dot,                // .
-    LParen,             // (
-    RParen,             // )
-    LBracket,           // [
-    RBracket,           // ]
-    LBrace,             // {
-    RBrace,             // }
+    LeftParen,          // (
+    RightParen,         // )
+    LeftBracket,        // [
+    RightBracket,       // ]
+    LeftBrace,          // {
+    RightBrace,         // }
     Identifier(String), // variable names
     Number(f64),        // numbers
     String(String),     // strings
