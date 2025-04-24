@@ -54,7 +54,15 @@ impl Lexer {
             }
             '-' => {
                 self.position += 1;
-                Token::Minus
+                if self.position < self.input.len() && self.current_char() == '>' {
+                    self.position += 1;
+                    Token::Arrow
+                } else if self.position < self.input.len() && self.current_char().is_digit(10) {
+                    let number = self.read_number();
+                    return Token::Number(number.parse::<f64>().unwrap() * -1.0);
+                } else {
+                    Token::Minus
+                }
             }
             '*' => {
                 self.position += 1;
@@ -70,27 +78,27 @@ impl Lexer {
             }
             '(' => {
                 self.position += 1;
-                Token::LParen
+                Token::LeftParen
             }
             ')' => {
                 self.position += 1;
-                Token::RParen
+                Token::RightParen
             }
             '{' => {
                 self.position += 1;
-                Token::LBrace
+                Token::LeftBrace
             }
             '}' => {
                 self.position += 1;
-                Token::RBrace
+                Token::RightBrace
             }
             '[' => {
                 self.position += 1;
-                Token::LBracket
+                Token::LeftBracket
             }
             ']' => {
                 self.position += 1;
-                Token::RBracket
+                Token::RightBracket
             }
             ',' => {
                 self.position += 1;
