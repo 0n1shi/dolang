@@ -37,7 +37,7 @@
                  |    <record_expr>
                  |    <access_expr>
 
-<match_expr>        ::= "match" <expression> { "|" <pattern> "=>" <expression> }
+<match_expr>        ::= "match" <expression> { "|" <pattern> "->" <expression> }
 
 <pattern>           ::= <literal>
                  |    <ident>
