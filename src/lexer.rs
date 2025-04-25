@@ -22,7 +22,7 @@ impl Lexer {
 
         let current_char = self.current_char();
 
-        if current_char.is_alphabetic() {
+        if current_char.is_alphabetic() || self.current_char() == '_' {
             let identifier = self.read_identifier();
             match identifier.as_str() {
                 "let" => return Token::Let,
@@ -183,7 +183,7 @@ impl Lexer {
     fn read_identifier(&mut self) -> String {
         let start_pos = self.position;
 
-        while self.position < self.input.len() && self.current_char().is_alphabetic() {
+        while self.position < self.input.len() && (self.current_char().is_alphanumeric() || self.current_char() == '_') {
             self.position += 1;
         }
 
