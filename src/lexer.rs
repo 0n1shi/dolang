@@ -28,6 +28,7 @@ impl Lexer {
                 "let" => return Token::Let,
                 "fn" => return Token::Fn,
                 "if" => return Token::If,
+                "then" => return Token::Then,
                 "else" => return Token::Else,
                 "for" => return Token::For,
                 "in" => return Token::In,
@@ -183,7 +184,9 @@ impl Lexer {
     fn read_identifier(&mut self) -> String {
         let start_pos = self.position;
 
-        while self.position < self.input.len() && (self.current_char().is_alphanumeric() || self.current_char() == '_') {
+        while self.position < self.input.len()
+            && (self.current_char().is_alphanumeric() || self.current_char() == '_')
+        {
             self.position += 1;
         }
 
@@ -193,7 +196,9 @@ impl Lexer {
     fn read_number(&mut self) -> String {
         let start_pos = self.position;
 
-        while self.position < self.input.len() && self.current_char().is_digit(10) {
+        while self.position < self.input.len()
+            && (self.current_char().is_digit(10) || self.current_char() == '.')
+        {
             self.position += 1;
         }
 

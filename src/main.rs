@@ -1,6 +1,4 @@
-mod lexer;
-mod token;
-
+use dolang::{lexer, token};
 use std::io::{self, Write};
 
 fn main() {

@@ -3,6 +3,7 @@ pub enum Token {
     Let,                // let
     Fn,                 // fn
     If,                 // if
+    Then,               // then
     Else,               // else
     For,                // for
     In,                 // in
