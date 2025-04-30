@@ -25,6 +25,7 @@ impl Lexer {
         if current_char.is_alphabetic() || self.current_char() == '_' {
             let identifier = self.read_identifier();
             match identifier.as_str() {
+                "_" => return Token::Underscore,
                 "let" => return Token::Let,
                 "fn" => return Token::Fn,
                 "if" => return Token::If,

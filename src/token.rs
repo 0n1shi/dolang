@@ -9,6 +9,7 @@ pub enum Token {
     In,                 // in
     Match,              // match
     Pipe,               // |
+    Underscore,         // _
     ForwardPipe,        // |>
     Arrow,              // ->
     Return,             // return
