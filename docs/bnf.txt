@@ -7,7 +7,7 @@
                    |  <record_expr>
 
 <record_expr>       ::= "{" <field> { "," <field> } "}"
-<field>             ::= <ident> "=" <expression>
+<field>             ::= <ident> ":" <expression>
 
 <access_expr>       ::= <ident> "." <ident>
 

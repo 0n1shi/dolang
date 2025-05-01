@@ -110,6 +110,10 @@ impl Lexer {
                 self.position += 1;
                 Token::Dot
             }
+            ':' => {
+                self.position += 1;
+                Token::Colon
+            }
             '=' => {
                 self.position += 1;
                 if self.position < self.input.len() && self.current_char() == '=' {
