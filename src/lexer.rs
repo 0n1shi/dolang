@@ -22,30 +22,31 @@ impl Lexer {
 
         let current_char = self.current_char();
 
-        if current_char.is_alphabetic() || self.current_char() == '_' {
+        if current_char.is_alphabetic() || current_char == '_' {
             let identifier = self.read_identifier();
-            match identifier.as_str() {
-                "_" => return Token::Underscore,
-                "let" => return Token::Let,
-                "fn" => return Token::Fn,
-                "if" => return Token::If,
-                "then" => return Token::Then,
-                "else" => return Token::Else,
-                "for" => return Token::For,
-                "in" => return Token::In,
-                "match" => return Token::Match,
-                "return" => return Token::Return,
-                "and" => return Token::And,
-                "or" => return Token::Or,
-                "not" => return Token::Not,
-                "true" => return Token::True,
-                "false" => return Token::False,
-                _ => return Token::Identifier(identifier),
-            }
+            return match identifier.as_str() {
+                "_" => Token::Underscore,
+                "let" => Token::Let,
+                "fn" => Token::Fn,
+                "if" => Token::If,
+                "then" => Token::Then,
+                "else" => Token::Else,
+                "for" => Token::For,
+                "in" => Token::In,
+                "match" => Token::Match,
+                "return" => Token::Return,
+                "and" => Token::And,
+                "or" => Token::Or,
+                "not" => Token::Not,
+                "true" => Token::True,
+                "false" => Token::False,
+                _ => Token::Identifier(identifier),
+            };
         }
 
-        if current_char.is_digit(10) {
+        if current_char.is_ascii_digit() {
             let number = self.read_number();
+            println!("number: {}", number);
             return Token::Number(number.parse().unwrap());
         }
 
@@ -55,14 +56,20 @@ impl Lexer {
                 Token::Plus
             }
             '-' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '>' {
-                    self.position += 1;
+                if let Some('>') = self.peek_char() {
+                    self.position += 2;
                     Token::Arrow
-                } else if self.position < self.input.len() && self.current_char().is_digit(10) {
-                    let number = self.read_number();
-                    return Token::Number(number.parse::<f64>().unwrap() * -1.0);
+                } else if let Some(c) = self.peek_char() {
+                    if c.is_ascii_digit() {
+                        self.position += 1;
+                        let number = self.read_number();
+                        return Token::Number(number.parse::<f64>().unwrap() * -1.0);
+                    } else {
+                        self.position += 1;
+                        Token::Minus
+                    }
                 } else {
+                    self.position += 1;
                     Token::Minus
                 }
             }
@@ -107,55 +114,60 @@ impl Lexer {
                 Token::Comma
             }
             '.' => {
-                self.position += 1;
-                Token::Dot
+                if let Some('.') = self.peek_char() {
+                    self.position += 2;
+                    Token::DotDot
+                } else {
+                    self.position += 1;
+                    Token::Dot
+                }
             }
             ':' => {
                 self.position += 1;
                 Token::Colon
             }
             '=' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '=' {
-                    self.position += 1;
+                if let Some('=') = self.peek_char() {
+                    self.position += 2;
                     Token::Equal
                 } else {
+                    self.position += 1;
                     Token::Assign
                 }
             }
             '!' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '=' {
-                    self.position += 1;
+                if let Some('=') = self.peek_char() {
+                    self.position += 2;
                     Token::NotEqual
                 } else {
-                    Token::Invalid // Handle invalid token
+                    self.position += 1;
+                    Token::Invalid
                 }
             }
             '<' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '=' {
-                    self.position += 1;
+                if let Some('=') = self.peek_char() {
+                    self.position += 2;
                     Token::LessThanOrEqual
                 } else {
+                    self.position += 1;
                     Token::LessThan
                 }
             }
             '>' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '=' {
-                    self.position += 1;
+                if let Some('=') = self.peek_char() {
+                    self.position += 2;
                     Token::GreaterThanOrEqual
                 } else {
+                    self.position += 1;
                     Token::GreaterThan
                 }
             }
             '|' => {
-                self.position += 1;
-                if self.position < self.input.len() && self.current_char() == '>' {
-                    self.position += 1;
+                if let Some('>') = self.peek_char() {
+                    self.position += 2;
                     Token::ForwardPipe
                 } else {
+                    self.position += 1;
                     Token::Pipe
                 }
             }
@@ -169,21 +181,28 @@ impl Lexer {
 
                 if self.position < self.input.len() {
                     let string_value = self.input[start_pos..self.position].iter().collect();
-                    self.position += 1; // Skip closing quote
+                    self.position += 1;
                     return Token::String(string_value);
                 } else {
-                    return Token::Invalid; // Handle unterminated string
+                    return Token::Invalid; // Unterminated string
                 }
             }
             _ => {
                 self.position += 1;
-                Token::EOF // Handle unknown characters
+                Token::Invalid
             }
         }
     }
 
     fn current_char(&self) -> char {
         self.input[self.position]
+    }
+    fn peek_char(&self) -> Option<char> {
+        if self.position + 1 < self.input.len() {
+            Some(self.input[self.position + 1])
+        } else {
+            None
+        }
     }
 
     fn read_identifier(&mut self) -> String {
@@ -197,7 +216,6 @@ impl Lexer {
 
         self.input[start_pos..self.position].iter().collect()
     }
-
     fn read_number(&mut self) -> String {
         let start_pos = self.position;
 

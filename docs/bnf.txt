@@ -1,11 +1,12 @@
 <expression>        ::= <pipe_expr>
-                   |  <match_expr>
-                   |  <for_expr>
-                   |  <let_expr>
-                   |  <atom>
-                   |  <function_expr>
-                   |  <record_expr>
-
+                    |   <match_expr>
+                    |   <for_expr>
+                    |   <let_expr>
+                    |   <range_expr>
+                    |   <atom>
+                    |   <function_expr>
+                    |   <record_expr>
+<range_expr>        ::= <expression> ".." <expression>
 <record_expr>       ::= "{" <field> { "," <field> } "}"
 <field>             ::= <ident> ":" <expression>
 
@@ -22,31 +23,31 @@
 <application>       ::= <atom> { <atom> }
 
 <function_expr>     ::= <lambda_expr>
-                 |    <ident>
-                 |    "(" <expression> ")"
+                    |   <ident>
+                    |   "(" <expression> ")"
 
 <lambda_expr>       ::= <ident> "->" <expression>
 
 <atom>              ::= <literal>
-                 |    <ident>
-                 |    "(" <expression> ")"
-                 |    <function>
-                 |    <list>
-                 |    <tuple>
-                 |    <if_expr>
-                 |    <record_expr>
-                 |    <access_expr>
+                    |   <ident>
+                    |   "(" <expression> ")"
+                    |   <function>
+                    |   <list>
+                    |   <tuple>
+                    |   <if_expr>
+                    |   <record_expr>
+                    |   <access_expr>
 
 <match_expr>        ::= "match" <expression> { "|" <pattern> "->" <expression> }
 
 <pattern>           ::= <literal>
-                 |    <ident>
-                 |    "(" <pattern> { "," <pattern> } ")"
-                 |    "_"
+                    |   <ident>
+                    |   "(" <pattern> { "," <pattern> } ")"
+                    |   "_"
 
 <literal>           ::= <number>
-                 |    <string>
-                 |    <boolean>
+                    |   <string>
+                    |   <boolean>
 
 <ident>             ::= <ident_start> { <ident_continue> }
 

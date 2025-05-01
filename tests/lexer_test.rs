@@ -209,6 +209,27 @@ fn test_lexer() {
             ],
         ),
         (
+            "examples/range.do",
+            vec![
+                Token::Let,
+                Token::Identifier("double".to_string()),
+                Token::Assign,
+                Token::Identifier("x".to_string()),
+                Token::Arrow,
+                Token::Identifier("x".to_string()),
+                Token::Multiply,
+                Token::Number(2.0),
+                Token::Let,
+                Token::Identifier("result".to_string()),
+                Token::Assign,
+                Token::Number(1.0),
+                Token::DotDot,
+                Token::Number(10.0),
+                Token::ForwardPipe,
+                Token::Identifier("double".to_string()),
+            ],
+        ),
+        (
             "examples/record.do",
             vec![
                 Token::Let,

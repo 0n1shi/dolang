@@ -27,6 +27,7 @@ pub enum Token {
     False,              // false
     Comma,              // ,
     Dot,                // .
+    DotDot,             // ..
     Colon,              // :
     LeftParen,          // (
     RightParen,         // )
