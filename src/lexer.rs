@@ -218,11 +218,25 @@ impl Lexer {
     }
     fn read_number(&mut self) -> String {
         let start_pos = self.position;
+        let mut has_dot = false;
 
-        while self.position < self.input.len()
-            && (self.current_char().is_digit(10) || self.current_char() == '.')
-        {
-            self.position += 1;
+        while self.position < self.input.len() {
+            let c = self.current_char();
+            if c.is_ascii_digit() {
+                self.position += 1;
+            } else if c == '.' {
+                if let Some('.') = self.peek_char() {
+                    // Stop before interpreting the range operator `..`
+                    break;
+                }
+                if has_dot {
+                    break; // already saw a dot → stop (e.g., "1.2.3")
+                }
+                has_dot = true;
+                self.position += 1;
+            } else {
+                break;
+            }
         }
 
         self.input[start_pos..self.position].iter().collect()

@@ -222,7 +222,7 @@ fn test_lexer() {
                 Token::Let,
                 Token::Identifier("result".to_string()),
                 Token::Assign,
-                Token::Number(1.0),
+                Token::Number(1.23),
                 Token::DotDot,
                 Token::Number(10.0),
                 Token::ForwardPipe,
