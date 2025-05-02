@@ -1,1 +1,1 @@
-let result = for x in [1, 2, 3] -> x * 2
+let result = [1, 2, 3] |> x -> x * 2

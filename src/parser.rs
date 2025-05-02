@@ -20,24 +20,54 @@ impl Parser {
     fn current_token(&self) -> &Token {
         self.tokens.get(self.opsition).unwrap_or(&Token::EOF)
     }
-    fn peek_token(&self) -> &Token {
-        self.tokens.get(self.opsition + 1).unwrap_or(&Token::EOF)
-    }
     fn next(&mut self) {
         self.opsition += 1;
     }
 
+    pub fn parse(&mut self) -> Option<Expression> {
+        match self.current_token() {
+            Token::Number(_) | Token::String(_) | Token::True | Token::False => self.literal(),
+            Token::Identifier(_) => self.identifier(),
+            Token::LeftParen => {
+                self.next(); // consume '('
+                let expr = self.expression();
+                if matches!(self.current_token(), Token::RightParen) {
+                    self.next(); // consume ')'
+                    expr
+                } else {
+                    None // error: missing ')'
+                }
+            }
+            _ => None,
+        }
+    }
 
     /**
      * Parser methods
      */
-    fn pattern(&mut self) -> Option<Expression> {
+    fn expression(&mut self) -> Option<Expression> {
         match self.current_token() {
-            Token::Number(_) | Token::String(_) | Token::True | Token::False => {
-                self.literal()
+            Token::Number(n) => {
+                let num = Expression::Number(*n);
+                self.next();
+                Some(num)
             }
-            Token::Identifier(_) => self.identifier(),
-            Token::Underscore
+            Token::String(s) => {
+                let str_expr = Expression::String(s.clone());
+                self.next();
+                Some(str_expr)
+            }
+            Token::True => {
+                let bool_expr = Expression::Boolean(true);
+                self.next();
+                Some(bool_expr)
+            }
+            Token::False => {
+                let bool_expr = Expression::Boolean(false);
+                self.next();
+                Some(bool_expr)
+            }
+            _ => None,
         }
     }
     fn literal(&mut self) -> Option<Expression> {
