@@ -1,35 +1,38 @@
-<expression>        ::= <pipe_expr>
-                    |   <match_expr>
-                    |   <for_expr>
-                    |   <let_expr>
-                    |   <range_expr>
-                    |   <atom>
-                    |   <function_expr>
-                    |   <record_expr>
-<range_expr>        ::= <expression> ".." <expression>
-<record_expr>       ::= "{" <field> { "," <field> } "}"
-<field>             ::= <ident> ":" <expression>
+<expression>        ::= <comparison_expr>
 
-<access_expr>       ::= <ident> "." <ident>
+<comparison_expr>   ::= <additive_expr> { ("==" | "!=" | "<" | ">" | "<=" | ">=") <additive_expr> }
 
-<let_expr>          ::= "let" <ident> "=" <expression>
-<let_stmt>          ::= "let" <ident> "=" <expression>
+<additive_expr>     ::= <multiplicative_expr> { ("+" | "-") <multiplicative_expr> }
 
-<for_expr>          ::= "for" <ident> "in" <expression> "->" <expression>
-<for_stmt>          ::= "for" <ident> "in" <expression> "->" <expression>
+<multiplicative_expr> ::= <pipe_expr> { ("*" | "/" | "%") <pipe_expr> }
 
 <pipe_expr>         ::= <application> { "|>" <function_expr> }
 
-<application>       ::= <atom> { <atom> }
+<application>       ::= <range_expr> { <atom> }
+
+<range_expr>        ::= <simple_expr> [ ".." <simple_expr> ]
+
+<simple_expr>       ::= <match_expr>
+                    |   <for_expr>
+                    |   <let_expr>
+                    |   <function_expr>
+                    |   <record_expr>
+                    |   <atom>
 
 <function_expr>     ::= <lambda_expr>
-                    |   <ident>
+                    |   <identifier>
                     |   "(" <expression> ")"
 
-<lambda_expr>       ::= <ident> "->" <expression>
+<lambda_expr>       ::= <identifier> "->" <expression>
+
+<match_expr>        ::= "match" <expression> { "|" <pattern> "->" <expression> }
+
+<for_expr>          ::= "for" <identifier> "in" <expression> "->" <expression>
+
+<let_expr>          ::= "let" <identifier> "=" <expression>
 
 <atom>              ::= <literal>
-                    |   <ident>
+                    |   <identifier>
                     |   "(" <expression> ")"
                     |   <function>
                     |   <list>
@@ -38,10 +41,13 @@
                     |   <record_expr>
                     |   <access_expr>
 
-<match_expr>        ::= "match" <expression> { "|" <pattern> "->" <expression> }
+<record_expr>       ::= "{" <field> { "," <field> } "}"
+<field>             ::= <identifier> ":" <expression>
+
+<access_expr>       ::= <identifier> "." <identifier>
 
 <pattern>           ::= <literal>
-                    |   <ident>
+                    |   <identifier>
                     |   "(" <pattern> { "," <pattern> } ")"
                     |   "_"
 
@@ -49,7 +55,4 @@
                     |   <string>
                     |   <boolean>
 
-<ident>             ::= <ident_start> { <ident_continue> }
-
-<ident_start>       ::= <letter> | "_"
-<ident_continue>    ::= <letter> | <digit> | "_"
+<identifier>        ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
