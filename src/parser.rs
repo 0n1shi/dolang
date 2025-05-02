@@ -24,25 +24,40 @@ impl Parser {
         self.opsition += 1;
     }
 
-    fn parse_atom(&mut self) -> Option<Expression> {
+    fn literal(&mut self) -> Option<Expression> {
         match self.current_token() {
             Token::Number(n) => {
                 let num = Expression::Number(*n);
                 self.next();
                 Some(num)
             }
-            Token::Identifier(name) => {
-                let id = Expression::Identifier(name.clone());
-                self.next();
-                Some(id)
-            }
             Token::String(s) => {
                 let str_expr = Expression::String(s.clone());
                 self.next();
                 Some(str_expr)
             }
+            Token::True => {
+                let bool_expr = Expression::Boolean(true);
+                self.next();
+                Some(bool_expr)
+            }
+            Token::False => {
+                let bool_expr = Expression::Boolean(false);
+                self.next();
+                Some(bool_expr)
+            }
+            _ => None,
+        }
+    }
+
+    fn identifier(&mut self) -> Option<Expression> {
+        match self.current_token() {
+            Token::Identifier(id) => {
+                let id_expr = Expression::Identifier(id.clone());
+                self.next();
+                Some(id_expr)
+            }
             _ => None,
         }
     }
 }
-
