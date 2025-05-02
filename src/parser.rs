@@ -1,4 +1,4 @@
-use crate::ast::Expression;
+use crate::ast::Expr;
 use crate::token::Token;
 
 pub struct Parser {
@@ -24,7 +24,7 @@ impl Parser {
         self.opsition += 1;
     }
 
-    pub fn parse(&mut self) -> Option<Expression> {
+    pub fn parse(&mut self) -> Option<Expr> {
         match self.current_token() {
             Token::Number(_) | Token::String(_) | Token::True | Token::False => self.literal(),
             Token::Identifier(_) => self.identifier(),
@@ -45,60 +45,60 @@ impl Parser {
     /**
      * Parser methods
      */
-    fn expression(&mut self) -> Option<Expression> {
+    fn expression(&mut self) -> Option<Expr> {
         match self.current_token() {
             Token::Number(n) => {
-                let num = Expression::Number(*n);
+                let num = Expr::Number(*n);
                 self.next();
                 Some(num)
             }
             Token::String(s) => {
-                let str_expr = Expression::String(s.clone());
+                let str_expr = Expr::String(s.clone());
                 self.next();
                 Some(str_expr)
             }
             Token::True => {
-                let bool_expr = Expression::Boolean(true);
+                let bool_expr = Expr::Boolean(true);
                 self.next();
                 Some(bool_expr)
             }
             Token::False => {
-                let bool_expr = Expression::Boolean(false);
+                let bool_expr = Expr::Boolean(false);
                 self.next();
                 Some(bool_expr)
             }
             _ => None,
         }
     }
-    fn literal(&mut self) -> Option<Expression> {
+    fn literal(&mut self) -> Option< Expr> {
         match self.current_token() {
             Token::Number(n) => {
-                let num = Expression::Number(*n);
+                let num = Expr::Number(*n);
                 self.next();
                 Some(num)
             }
             Token::String(s) => {
-                let str_expr = Expression::String(s.clone());
+                let str_expr = Expr::String(s.clone());
                 self.next();
                 Some(str_expr)
             }
             Token::True => {
-                let bool_expr = Expression::Boolean(true);
+                let bool_expr = Expr::Boolean(true);
                 self.next();
                 Some(bool_expr)
             }
             Token::False => {
-                let bool_expr = Expression::Boolean(false);
+                let bool_expr = Expr::Boolean(false);
                 self.next();
                 Some(bool_expr)
             }
             _ => None,
         }
     }
-    fn identifier(&mut self) -> Option<Expression> {
+    fn identifier(&mut self) -> Option< Expr> {
         match self.current_token() {
             Token::Identifier(id) => {
-                let id_expr = Expression::Identifier(id.clone());
+                let id_expr = Expr::Identifier(id.clone());
                 self.next();
                 Some(id_expr)
             }

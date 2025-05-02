@@ -1,40 +1,43 @@
-<expression>        ::= <comparison_expr>
+<expression>          ::= <comparison_expr>
 
-<comparison_expr>   ::= <additive_expr> { ("==" | "!=" | "<" | ">" | "<=" | ">=") <additive_expr> }
-<additive_expr>     ::= <multiplicative_expr> { ("+" | "-") <multiplicative_expr> }
+<comparison_expr>     ::= <additive_expr> { ("==" | "!=" | "<" | ">" | "<=" | ">=") <additive_expr> }
+<additive_expr>       ::= <multiplicative_expr> { ("+" | "-") <multiplicative_expr> }
 <multiplicative_expr> ::= <pipe_expr> { ("*" | "/" | "%") <pipe_expr> }
-<pipe_expr>         ::= <application> { "|>" <function_expr> }
-<application>       ::= <range_expr> { <simple_expr> }
-<range_expr>        ::= <simple_expr> [ ".." <simple_expr> ]
+<pipe_expr>           ::= <application> { "|>" <function_expr> }
+<application>         ::= <range_expr> { <simple_expr> }
+<range_expr>          ::= <simple_expr> [ ".." <simple_expr> ]
 
-<simple_expr>       ::= <match_expr>
-                      | <for_expr>
-                      | <let_expr>
-                      | <function_expr>
-                      | <record_expr>
-                      | <access_expr>
-                      | <list>
-                      | <tuple>
-                      | <if_expr>
-                      | <literal>
-                      | <identifier>
-                      | "(" <expression> ")"
+<simple_expr>         ::= <match_expr>
+                        | <for_expr>
+                        | <let_expr>
+                        | <function_expr>
+                        | <record_expr>
+                        | <access_expr>
+                        | <list>
+                        | <tuple>
+                        | <if_expr>
+                        | <literal>
+                        | <identifier>
+                        | "(" <expression> ")"
 
-<function_expr>     ::= <lambda_expr> | "(" <expression> ")"
-<lambda_expr>       ::= <identifier> "->" <expression>
-<match_expr>        ::= "match" <expression> { "|" <pattern> "->" <expression> }
-<for_expr>          ::= "for" <identifier> "in" <expression> "->" <expression>
-<let_expr>          ::= "let" <identifier> "=" <expression>
-<record_expr>       ::= "{" <field> { "," <field> } "}"
-<field>             ::= <identifier> ":" <expression>
-<access_expr>       ::= <simple_expr> "." <identifier>
-<list>              ::= "[" [ <expression> { "," <expression> } ] "]"
-<tuple>             ::= "(" <expression> "," <expression> { "," <expression> } ")"
+<function_expr>       ::= <lambda_expr> | "(" <expression> ")"
+<lambda_expr>         ::= <simple_pattern> "->" <expression>
+<match_expr>          ::= "match" <expression> { "|" <pattern> "->" <expression> }
+<for_expr>            ::= "for" <identifier> "in" <expression> "->" <expression>
+<let_expr>            ::= "let" <identifier> "=" <expression>
+<record_expr>         ::= "{" <field> { "," <field> } "}"
+<field>               ::= <identifier> ":" <expression>
+<access_expr>         ::= <simple_expr> "." <identifier>
+<list>                ::= "[" [ <expression> { "," <expression> } ] "]"
+<tuple>               ::= "(" <expression> "," <expression> { "," <expression> } ")"
 
-<pattern>           ::= <literal>
-                      | <identifier>
-                      | "(" <pattern> { "," <pattern> } ")"
-                      | "_"
+<pattern>             ::= <literal>
+                        | <identifier>
+                        | "(" <pattern> { "," <pattern> } ")"
+                        | "_"
+<simple_pattern>      ::= <identifier>
+                        | "(" <simple_pattern> { "," <simple_pattern> } ")"
+                        | "_"
 
-<literal>           ::= <number> | <string> | <boolean>
-<identifier>        ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
+<literal>             ::= <number> | <string> | <boolean>
+<identifier>          ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }

@@ -1,20 +1,20 @@
-use dolang::ast::Expression;
+use dolang::ast::Expr;
 use dolang::parser::Parser;
 use dolang::token::Token;
 
 #[test]
 fn test_parser() {
     let test_cases = vec![
-        (vec![Token::Number(1.0)], Some(Expression::Number(1.0))),
+        (vec![Token::Number(1.0)], Some(Expr::Number(1.0))),
         (
             vec![Token::String("hello".to_string())],
-            Some(Expression::String("hello".to_string())),
+            Some(Expr::String("hello".to_string())),
         ),
-        (vec![Token::True], Some(Expression::Boolean(true))),
-        (vec![Token::False], Some(Expression::Boolean(false))),
+        (vec![Token::True], Some(Expr::Boolean(true))),
+        (vec![Token::False], Some(Expr::Boolean(false))),
         (
             vec![Token::Identifier("y".to_string())],
-            Some(Expression::Identifier("y".to_string())),
+            Some(Expr::Identifier("y".to_string())),
         ),
     ];
 
