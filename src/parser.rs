@@ -14,6 +14,9 @@ impl Parser {
         }
     }
 
+    /**
+     * Utilities
+     */
     fn current_token(&self) -> &Token {
         self.tokens.get(self.opsition).unwrap_or(&Token::EOF)
     }
@@ -24,6 +27,19 @@ impl Parser {
         self.opsition += 1;
     }
 
+
+    /**
+     * Parser methods
+     */
+    fn pattern(&mut self) -> Option<Expression> {
+        match self.current_token() {
+            Token::Number(_) | Token::String(_) | Token::True | Token::False => {
+                self.literal()
+            }
+            Token::Identifier(_) => self.identifier(),
+            Token::Underscore
+        }
+    }
     fn literal(&mut self) -> Option<Expression> {
         match self.current_token() {
             Token::Number(n) => {
@@ -49,7 +65,6 @@ impl Parser {
             _ => None,
         }
     }
-
     fn identifier(&mut self) -> Option<Expression> {
         match self.current_token() {
             Token::Identifier(id) => {
