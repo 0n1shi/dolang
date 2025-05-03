@@ -66,14 +66,15 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        self.next(); // Consume number | string | identifier | "true" | "false"
-        match self.current_token() {
+        let result = match self.current_token() {
             Token::Number(n) => Ok(Expr::Number(*n)),
             Token::String(s) => Ok(Expr::String(s.clone())),
             Token::True => Ok(Expr::Boolean(true)),
             Token::False => Ok(Expr::Boolean(false)),
             Token::Identifier(id) => Ok(Expr::Identifier(id.clone())),
             _ => Err("Expected expression".into()),
-        }
+        };
+        self.next(); // Consume number | string | identifier | "true" | "false"
+        result
     }
 }

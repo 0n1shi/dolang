@@ -45,7 +45,6 @@ impl Lexer {
 
         if current_char.is_ascii_digit() {
             let number = self.read_number();
-            println!("number: {}", number);
             return Token::Number(number.parse().unwrap());
         }
 
