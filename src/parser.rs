@@ -44,6 +44,7 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Stmt, String> {
         match self.current_token() {
             Token::Let => self.parse_let_stmt(),
+            Token::Print => self.parse_print_stmt(),
             _ => self.parse_expr_stmt(),
         }
     }
@@ -60,6 +61,11 @@ impl Parser {
         self.next(); // Consume '='
         let val = self.parse_expr()?;
         Ok(Stmt::Let { name, val })
+    }
+    fn parse_print_stmt(&mut self) -> Result<Stmt, String> {
+        self.next(); // Consume 'print'
+        let expr = self.parse_expr()?;
+        Ok(Stmt::Print(expr))
     }
     fn parse_expr_stmt(&mut self) -> Result<Stmt, String> {
         let expr = self.parse_expr()?;

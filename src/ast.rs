@@ -7,6 +7,7 @@ pub struct AST {
 pub enum Stmt {
     Expr(Expr),
     Let { name: String, val: Expr },
+    Print(Expr),
 }
 
 #[derive(Debug, Clone, PartialEq)]

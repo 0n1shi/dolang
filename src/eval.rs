@@ -1,0 +1,99 @@
+use crate::ast::{Expr, Stmt, AST};
+
+pub enum Value {
+    Number(f64),
+    String(String),
+    Boolean(bool),
+}
+
+pub struct Env {
+    variables: std::collections::HashMap<String, Value>,
+    parent: Option<Box<Env>>,
+}
+
+impl Env {
+    pub fn new(parent: Option<Box<Env>>) -> Self {
+        Env {
+            variables: std::collections::HashMap::new(),
+            parent,
+        }
+    }
+
+    pub fn set(&mut self, name: String, value: Value) {
+        self.variables.insert(name, value);
+    }
+
+    pub fn get(&self, name: &str) -> Option<&Value> {
+        if let Some(value) = self.variables.get(name) {
+            Some(value)
+        } else if let Some(parent) = &self.parent {
+            parent.get(name)
+        } else {
+            None
+        }
+    }
+}
+
+pub struct Evaluator {
+    ast: AST,
+}
+
+impl Evaluator {
+    pub fn new(ast: AST) -> Self {
+        Evaluator { ast }
+    }
+
+    pub fn eval(&self, env: &mut Env) -> Result<(), String> {
+        for stmt in &self.ast.stmts {
+            self.eval_stmt(&stmt, env)?;
+        }
+        Ok(())
+    }
+
+    fn eval_stmt(&self, stmt: &Stmt, env: &mut Env) -> Result<(), String> {
+        match stmt {
+            Stmt::Expr(expr) => {
+                self.eval_expr(expr, env)?;
+                Ok(())
+            }
+            Stmt::Let { name, val } => {
+                let val = self.eval_expr(val, env)?;
+                env.set(name.clone(), val);
+                Ok(())
+            }
+            Stmt::Print(expr) => {
+                let value = self.eval_expr(expr, env)?;
+                match value {
+                    Value::Number(n) => println!("{}", n),
+                    Value::String(s) => println!("{}", s),
+                    Value::Boolean(b) => println!("{}", b),
+                }
+                Ok(())
+            }
+        }
+    }
+
+    fn eval_expr(&self, expr: &Expr, env: &mut Env) -> Result<Value, String> {
+        match expr {
+            Expr::Number(n) => Ok(Value::Number(*n)),
+            Expr::String(s) => Ok(Value::String(s.clone())),
+            Expr::Boolean(b) => Ok(Value::Boolean(*b)),
+            Expr::Identifier(expr) => {
+                if let Some(value) = env.get(&expr.to_string()) {
+                    Ok(match value {
+                        Value::Number(n) => Value::Number(*n),
+                        Value::String(s) => Value::String(s.clone()),
+                        Value::Boolean(b) => Value::Boolean(*b),
+                    })
+                } else {
+                    Err(format!("Undefined variable: {}", expr))
+                }
+            }
+            Expr::Logic { .. } => Err("Logic expression evaluation not implemented".into()),
+            Expr::Comp { .. } => Err("Comparison expression evaluation not implemented".into()),
+            Expr::Term { .. } => Err("Term expression evaluation not implemented".into()),
+            Expr::Factor { .. } => Err("Factor expression evaluation not implemented".into()),
+            Expr::Unary { .. } => Err("Unary expression evaluation not implemented".into()),
+        }
+    }
+}

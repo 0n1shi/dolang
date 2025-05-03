@@ -7,6 +7,7 @@ pub enum Token {
     For,                // for
     In,                 // in
     Match,              // match
+    Print,              // print
     Pipe,               // |
     Underscore,         // _
     ForwardPipe,        // |>

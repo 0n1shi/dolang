@@ -1,7 +1,8 @@
 <stmt>                  ::= <let_stmt>
                           | <expr_stmt>
 <let_stmt>              ::= "let" <id> "=" <expr>
-<expr_stmt>             ::= <expr> ";"
+<print_stmt>            ::= "print" <expr>
+<expr_stmt>             ::= <expr>
 
 <expr>          ::= <lambda_expr>
                   | <if_expr>
