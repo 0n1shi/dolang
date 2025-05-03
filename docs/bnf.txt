@@ -27,13 +27,19 @@
 <list>  ::= "[" [ <expr> { "," <expr> } ] "]"
 <tuple> ::= "(" <expr> "," <expr> { "," <expr> } ")"
 
-<logi_expr>     ::= <comp_expr> { ("and" | "or") <comp_expr> }
+<logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
 <comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }
-<term_expr>     ::= <fanctor_expr> { ("+" | "-") <fanctor_expr> }
-<fanctor_expr>  ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
+<term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
+<factor_expr>  ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
                   | <call_expr>
 <call_expr>     ::= <identifier> "(" { <expr> { "," <expr> } } ")"
 
 <identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
-<literal>       ::= <number> | <string> | <boolean>
+<primary>      ::= <literal>
+                  | <identifier>
+                  | "(" <expr> ")"
+<literal>       ::= <number>
+                  | <string>
+                  | "true"
+                  | "false"
