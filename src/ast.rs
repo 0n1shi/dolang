@@ -12,10 +12,8 @@ pub enum Stmt {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
-    Number(f64),
-    String(String),
-    Boolean(bool),
-    Identifier(String),
+    List(Vec<Expr>),
+    Tuple(Vec<Expr>),
     Logic {
         left: Box<Expr>,
         op: LogicOp,
@@ -40,6 +38,10 @@ pub enum Expr {
         op: UnaryOp,
         right: Box<Expr>,
     },
+    Identifier(String),
+    Number(f64),
+    String(String),
+    Boolean(bool),
 }
 
 #[derive(Debug, Clone, PartialEq)]

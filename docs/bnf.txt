@@ -12,8 +12,8 @@
                   | <let_stmt>
                   | <logi_expr>
 
-<lambda_expr>   ::= ( <args> "->" <expr> )
-                  | ( <arg> "->" <expr> )
+<lambda_expr>   ::= fn <args> "->" <expr>
+                  | fn <arg> "->" <expr>
 <arg>           ::= <ident>
 <args>          ::= "(" <identifier> { "," <identifier> } ")"
 

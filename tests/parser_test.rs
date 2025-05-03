@@ -6,14 +6,14 @@ use dolang::token::Token;
 fn test_parser() {
     let test_cases = vec![
         (
-            // 1
+            "1",
             vec![Token::Number(1.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Number(1.0))],
             }),
         ),
         (
-            // let x = 1
+            "let x = 1",
             vec![
                 Token::Let,
                 Token::Identifier("x".to_string()),
@@ -28,7 +28,7 @@ fn test_parser() {
             }),
         ),
         (
-            // 1 == 2,
+            "1 == 2",
             vec![Token::Number(1.0), Token::Equal, Token::Number(2.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Comp {
@@ -39,7 +39,7 @@ fn test_parser() {
             }),
         ),
         (
-            // 1 + 2
+            "1 + 2",
             vec![Token::Number(1.0), Token::Plus, Token::Number(2.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Term {
@@ -50,7 +50,7 @@ fn test_parser() {
             }),
         ),
         (
-            // let x = 1 + 2
+            "let x = 1 + 2",
             vec![
                 Token::Let,
                 Token::Identifier("x".to_string()),
@@ -71,7 +71,7 @@ fn test_parser() {
             }),
         ),
         (
-            // 2 * 3
+            "2 * 3",
             vec![Token::Number(2.0), Token::Asterisk, Token::Number(3.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Factor {
@@ -82,7 +82,7 @@ fn test_parser() {
             }),
         ),
         (
-            // -1
+            "-1",
             vec![Token::Minus, Token::Number(1.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Unary {
@@ -92,14 +92,14 @@ fn test_parser() {
             }),
         ),
         (
-            // true
+            "true",
             vec![Token::True],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Boolean(true))],
             }),
         ),
         (
-            // 1 + 1 && 2 + 2
+            "1 + 1 and 2 + 2",
             vec![
                 Token::Number(1.0),
                 Token::Plus,
@@ -125,9 +125,47 @@ fn test_parser() {
                 })],
             }),
         ),
+        (
+            "[1, 2, 3]",
+            vec![
+                Token::LeftBracket,
+                Token::Number(1.0),
+                Token::Comma,
+                Token::Number(2.0),
+                Token::Comma,
+                Token::Number(3.0),
+                Token::RightBracket,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::List(vec![
+                    Expr::Number(1.0),
+                    Expr::Number(2.0),
+                    Expr::Number(3.0),
+                ]))],
+            }),
+        ),
+        (
+            "(1, 2, 3)",
+            vec![
+                Token::LeftParen,
+                Token::Number(1.0),
+                Token::Comma,
+                Token::Number(2.0),
+                Token::Comma,
+                Token::Number(3.0),
+                Token::RightParen,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Tuple(vec![
+                    Expr::Number(1.0),
+                    Expr::Number(2.0),
+                    Expr::Number(3.0),
+                ]))],
+            }),
+        ),
     ];
 
-    for (tokens, expected) in test_cases {
+    for (_, tokens, expected) in test_cases {
         let mut parser = Parser::new(tokens);
         let result = parser.parse();
         assert_eq!(result, expected);

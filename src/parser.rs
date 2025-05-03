@@ -72,20 +72,60 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        self.parse_logic_expr()
+        if self.current_token() == &Token::LeftBracket {
+            self.next(); // Consume '['
+            let mut elements = Vec::new();
+            while self.current_token() != &Token::RightBracket {
+                let expr = self.parse_expr()?;
+                elements.push(expr);
+                if self.current_token() == &Token::Comma {
+                    self.next(); // Consume ','
+                } else {
+                    break;
+                }
+            }
+            if self.current_token() != &Token::RightBracket {
+                return Err("Expected ']'".into());
+            }
+            self.next(); // Consume ']'
+            return Ok(Expr::List(elements));
+        } else if self.current_token() == &Token::LeftParen {
+            self.next(); // Consume '('
+            let mut elements = Vec::new();
+            while self.current_token() != &Token::RightParen {
+                let expr = self.parse_expr()?;
+                elements.push(expr);
+                if self.current_token() == &Token::Comma {
+                    self.next(); // Consume ','
+                } else {
+                    break;
+                }
+            }
+            if self.current_token() != &Token::RightParen {
+                return Err("Expected ')'".into());
+            }
+            self.next(); // Consume ')'
+            return Ok(Expr::Tuple(elements));
+        } else {
+            return self.parse_logic_expr();
+        }
     }
     fn parse_logic_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_comp_expr()?;
+
         if self.current_token() == &Token::And || self.current_token() == &Token::Or {
+            let op = match self.current_token() {
+                Token::And => LogicOp::And,
+                Token::Or => LogicOp::Or,
+                _ => unreachable!(),
+            };
             self.next(); // Consume 'and'
+
             let right = self.parse_comp_expr()?;
+
             Ok(Expr::Logic {
                 left: Box::new(left),
-                op: match self.current_token() {
-                    Token::And => LogicOp::And,
-                    Token::Or => LogicOp::Or,
-                    _ => unreachable!(),
-                },
+                op,
                 right: Box::new(right),
             })
         } else {
@@ -114,7 +154,9 @@ impl Parser {
                 _ => unreachable!(),
             };
             self.next(); // Consume comparison operator
+
             let right = self.parse_term_expr()?;
+
             Ok(Expr::Comp {
                 left: Box::new(left),
                 op,
@@ -133,7 +175,9 @@ impl Parser {
                 _ => unreachable!(),
             };
             self.next(); // Consume '+' or '-'
+
             let right = self.parse_factor_expr()?;
+
             Ok(Expr::Term {
                 left: Box::new(left),
                 op,
@@ -153,7 +197,9 @@ impl Parser {
                 _ => unreachable!(),
             };
             self.next(); // Consume '*' or '/'
+
             let right = self.parse_unary_expr()?;
+
             Ok(Expr::Factor {
                 left: Box::new(left),
                 op,
@@ -171,7 +217,9 @@ impl Parser {
                 _ => unreachable!(),
             };
             self.next(); // Consume '-' or 'not'
+
             let right = self.parse_unary_expr()?;
+
             Ok(Expr::Unary {
                 op,
                 right: Box::new(right),
@@ -195,13 +243,24 @@ impl Parser {
                 self.next(); // Consume string
                 Ok(Expr::String(s.clone()))
             }
+            Token::True => {
+                self.next(); // Consume 'true'
+                Ok(Expr::Boolean(true))
+            }
+            Token::False => {
+                self.next(); // Consume 'false'
+                Ok(Expr::Boolean(false))
+            }
             Token::LeftParen => {
                 self.next(); // Consume '('
+
                 let expr = self.parse_expr()?;
+
                 if self.current_token() != &Token::RightParen {
                     return Err("Expected ')'".into());
                 }
                 self.next(); // Consume ')'
+
                 Ok(expr)
             }
             _ => Err("Expected identifier, number, string, or '('".into()),

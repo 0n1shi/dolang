@@ -75,20 +75,6 @@ impl Evaluator {
 
     fn eval_expr(&self, expr: &Expr, env: &mut Env) -> Result<Value, String> {
         match expr {
-            Expr::Number(n) => Ok(Value::Number(*n)),
-            Expr::String(s) => Ok(Value::String(s.clone())),
-            Expr::Boolean(b) => Ok(Value::Boolean(*b)),
-            Expr::Identifier(expr) => {
-                if let Some(value) = env.get(&expr.to_string()) {
-                    Ok(match value {
-                        Value::Number(n) => Value::Number(*n),
-                        Value::String(s) => Value::String(s.clone()),
-                        Value::Boolean(b) => Value::Boolean(*b),
-                    })
-                } else {
-                    Err(format!("Undefined variable: {}", expr))
-                }
-            }
             Expr::Logic { left, op, right } => {
                 let left_val = self.eval_expr(left, env)?;
                 let right_val = self.eval_expr(right, env)?;
@@ -191,6 +177,21 @@ impl Evaluator {
                     },
                 }
             }
+            Expr::Identifier(expr) => {
+                if let Some(value) = env.get(&expr.to_string()) {
+                    Ok(match value {
+                        Value::Number(n) => Value::Number(*n),
+                        Value::String(s) => Value::String(s.clone()),
+                        Value::Boolean(b) => Value::Boolean(*b),
+                    })
+                } else {
+                    Err(format!("Undefined variable: {}", expr))
+                }
+            }
+            Expr::Number(n) => Ok(Value::Number(*n)),
+            Expr::String(s) => Ok(Value::String(s.clone())),
+            Expr::Boolean(b) => Ok(Value::Boolean(*b)),
+            _ => Err("Unsupported expression".into()),
         }
     }
 }
