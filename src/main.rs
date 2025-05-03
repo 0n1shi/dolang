@@ -3,8 +3,10 @@ use std::io::{self, Write};
 
 fn main() {
     println!("Welcome to Dolang :)");
+    let mut env = eval::Env::new(None);
+
     loop {
-        print!("> ");
+        print!("repl> ");
         io::stdout().flush().unwrap(); // Ensure the prompt is printed immediately
 
         let mut input = String::new();
@@ -42,7 +44,6 @@ fn main() {
             }
         };
 
-        let mut env = eval::Env::new(None);
         let evaluator = eval::Evaluator::new(ast);
         evaluator.eval(&mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);

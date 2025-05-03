@@ -1,4 +1,4 @@
-use crate::ast::{Expr, LogicOp, Stmt, AST};
+use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
 
 pub enum Value {
     Number(f64),
@@ -103,10 +103,94 @@ impl Evaluator {
                     },
                 }
             }
-            Expr::Comp { .. } => Err("Comparison expression evaluation not implemented".into()),
-            Expr::Term { .. } => Err("Term expression evaluation not implemented".into()),
-            Expr::Factor { .. } => Err("Factor expression evaluation not implemented".into()),
-            Expr::Unary { .. } => Err("Unary expression evaluation not implemented".into()),
+            Expr::Comp { left, op, right } => {
+                let left_val = self.eval_expr(left, env)?;
+                let right_val = self.eval_expr(right, env)?;
+                match op {
+                    CompOp::Equal => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l == r)),
+                        (Value::String(l), Value::String(r)) => Ok(Value::Boolean(l == r)),
+                        (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l == r)),
+                        _ => Err("Equality comparison requires same type".into()),
+                    },
+                    CompOp::NotEqual => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l != r)),
+                        (Value::String(l), Value::String(r)) => Ok(Value::Boolean(l != r)),
+                        (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l != r)),
+                        _ => Err("Inequality comparison requires same type".into()),
+                    },
+                    CompOp::LessThan => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l < r)),
+                        _ => Err("Less than comparison requires number operands".into()),
+                    },
+                    CompOp::LessThanOrEqual => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l <= r)),
+                        _ => Err("Less than or equal comparison requires number operands".into()),
+                    },
+                    CompOp::GreaterThan => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l > r)),
+                        _ => Err("Greater than comparison requires number operands".into()),
+                    },
+                    CompOp::GreaterThanOrEqual => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l >= r)),
+                        _ => {
+                            Err("Greater than or equal comparison requires number operands".into())
+                        }
+                    },
+                }
+            }
+            Expr::Term { left, op, right } => {
+                let left_val = self.eval_expr(left, env)?;
+                let right_val = self.eval_expr(right, env)?;
+                match op {
+                    TermOp::Plus => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Number(l + r)),
+                        (Value::String(l), Value::String(r)) => Ok(Value::String(l + &r)),
+                        _ => Err("Addition requires number or string operands".into()),
+                    },
+                    TermOp::Minus => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Number(l - r)),
+                        _ => Err("Subtraction requires number operands".into()),
+                    },
+                }
+            }
+            Expr::Factor { left, op, right } => {
+                let left_val = self.eval_expr(left, env)?;
+                let right_val = self.eval_expr(right, env)?;
+                match op {
+                    FactorOp::Multiply => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Number(l * r)),
+                        _ => Err("Multiplication requires number operands".into()),
+                    },
+                    FactorOp::Divide => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => {
+                            if r == 0.0 {
+                                Err("Division by zero".into())
+                            } else {
+                                Ok(Value::Number(l / r))
+                            }
+                        }
+                        _ => Err("Division requires number operands".into()),
+                    },
+                    FactorOp::Modulus => match (left_val, right_val) {
+                        (Value::Number(l), Value::Number(r)) => Ok(Value::Number(l % r)),
+                        _ => Err("Modulus requires number operands".into()),
+                    },
+                }
+            }
+            Expr::Unary { op, right } => {
+                let right_val = self.eval_expr(right, env)?;
+                match op {
+                    UnaryOp::Minus => match right_val {
+                        Value::Number(n) => Ok(Value::Number(-n)),
+                        _ => Err("Unary minus requires number operand".into()),
+                    },
+                    UnaryOp::Not => match right_val {
+                        Value::Boolean(b) => Ok(Value::Boolean(!b)),
+                        _ => Err("Logical NOT requires boolean operand".into()),
+                    },
+                }
+            }
         }
     }
 }
