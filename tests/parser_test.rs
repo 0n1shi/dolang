@@ -1,4 +1,4 @@
-use dolang::ast::{CompOp, Expr, FactorOp, Stmt, TermOp, UnaryOp, AST};
+use dolang::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
 use dolang::parser::Parser;
 use dolang::token::Token;
 
@@ -88,6 +88,40 @@ fn test_parser() {
                 stmts: vec![Stmt::Expr(Expr::Unary {
                     op: UnaryOp::Minus,
                     right: Box::new(Expr::Number(1.0)),
+                })],
+            }),
+        ),
+        (
+            // true
+            vec![Token::True],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Boolean(true))],
+            }),
+        ),
+        (
+            // 1 + 1 && 2 + 2
+            vec![
+                Token::Number(1.0),
+                Token::Plus,
+                Token::Number(1.0),
+                Token::And,
+                Token::Number(2.0),
+                Token::Plus,
+                Token::Number(2.0),
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Logic {
+                    left: Box::new(Expr::Term {
+                        left: Box::new(Expr::Number(1.0)),
+                        op: TermOp::Plus,
+                        right: Box::new(Expr::Number(1.0)),
+                    }),
+                    op: LogicOp::And,
+                    right: Box::new(Expr::Term {
+                        left: Box::new(Expr::Number(2.0)),
+                        op: TermOp::Plus,
+                        right: Box::new(Expr::Number(2.0)),
+                    }),
                 })],
             }),
         ),

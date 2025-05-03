@@ -1,4 +1,4 @@
-use dolang::{lexer, token};
+use dolang::{eval, lexer, parser, token};
 use std::io::{self, Write};
 
 fn main() {
@@ -33,7 +33,19 @@ fn main() {
             tokens.push(token);
         }
 
-        println!("You entered: {}", trimmed_input);
-        println!("Tokens: {:?}", tokens);
+        let mut parser = parser::Parser::new(tokens);
+        let ast = match parser.parse() {
+            Ok(ast) => ast,
+            Err(e) => {
+                eprintln!("Error parsing input: {}", e);
+                continue; // Skip to the next iteration on error
+            }
+        };
+
+        let mut env = eval::Env::new(None);
+        let evaluator = eval::Evaluator::new(ast);
+        evaluator.eval(&mut env).unwrap_or_else(|e| {
+            eprintln!("Error evaluating input: {}", e);
+        });
     }
 }

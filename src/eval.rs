@@ -1,4 +1,4 @@
-use crate::ast::{Expr, Stmt, AST};
+use crate::ast::{Expr, LogicOp, Stmt, AST};
 
 pub enum Value {
     Number(f64),
@@ -89,7 +89,20 @@ impl Evaluator {
                     Err(format!("Undefined variable: {}", expr))
                 }
             }
-            Expr::Logic { .. } => Err("Logic expression evaluation not implemented".into()),
+            Expr::Logic { left, op, right } => {
+                let left_val = self.eval_expr(left, env)?;
+                let right_val = self.eval_expr(right, env)?;
+                match op {
+                    LogicOp::And => match (left_val, right_val) {
+                        (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l && r)),
+                        _ => Err("Logical AND requires boolean operands".into()),
+                    },
+                    LogicOp::Or => match (left_val, right_val) {
+                        (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l || r)),
+                        _ => Err("Logical OR requires boolean operands".into()),
+                    },
+                }
+            }
             Expr::Comp { .. } => Err("Comparison expression evaluation not implemented".into()),
             Expr::Term { .. } => Err("Term expression evaluation not implemented".into()),
             Expr::Factor { .. } => Err("Factor expression evaluation not implemented".into()),
