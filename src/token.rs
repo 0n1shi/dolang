@@ -1,7 +1,6 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     Let,                // let
-    Fn,                 // fn
     If,                 // if
     Then,               // then
     Else,               // else
@@ -40,9 +39,15 @@ pub enum Token {
     String(String),     // strings
     Plus,               // +
     Minus,              // -
-    Multiply,           // *
-    Divide,             // /
-    Modulus,            // %
+    Asterisk,           // *
+    Slash,              // /
+    Percent,            // %
     Invalid,            // invalid token
     EOF,
+}
+
+impl Token {
+    pub fn is_eof(&self) -> bool {
+        matches!(self, Token::EOF)
+    }
 }

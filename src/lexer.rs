@@ -27,7 +27,6 @@ impl Lexer {
             return match identifier.as_str() {
                 "_" => Token::Underscore,
                 "let" => Token::Let,
-                "fn" => Token::Fn,
                 "if" => Token::If,
                 "then" => Token::Then,
                 "else" => Token::Else,
@@ -75,15 +74,15 @@ impl Lexer {
             }
             '*' => {
                 self.position += 1;
-                Token::Multiply
+                Token::Asterisk
             }
             '/' => {
                 self.position += 1;
-                Token::Divide
+                Token::Slash
             }
             '%' => {
                 self.position += 1;
-                Token::Modulus
+                Token::Percent
             }
             '(' => {
                 self.position += 1;
