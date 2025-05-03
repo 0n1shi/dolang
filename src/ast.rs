@@ -1,6 +1,18 @@
 #[derive(Debug, Clone)]
-pub enum Expression {
-    Number(i64),
-    Variable(String),
-    BinaryOperation(Box<Expression>, Operator, Box<Expression>),
+pub struct AST {
+    pub stmts: Vec<Stmt>,
+}
+
+#[derive(Debug, Clone)]
+pub enum Stmt {
+    Expr(Expr),
+    Let { name: String, val: Expr },
+}
+
+#[derive(Debug, Clone)]
+pub enum Expr {
+    Number(f64),
+    String(String),
+    Boolean(bool),
+    Identifier(String),
 }
