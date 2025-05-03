@@ -15,9 +15,62 @@ pub enum Expr {
     String(String),
     Boolean(bool),
     Identifier(String),
-    Comp {
+    Logic {
         left: Box<Expr>,
-        op: String,
+        op: LogicOp,
         right: Box<Expr>,
     },
+    Comp {
+        left: Box<Expr>,
+        op: CompOp,
+        right: Box<Expr>,
+    },
+    Term {
+        left: Box<Expr>,
+        op: TermOp,
+        right: Box<Expr>,
+    },
+    Factor {
+        left: Box<Expr>,
+        op: FactorOp,
+        right: Box<Expr>,
+    },
+    Unary {
+        op: UnaryOp,
+        right: Box<Expr>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum CompOp {
+    Equal,
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum LogicOp {
+    And,
+    Or,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum TermOp {
+    Plus,
+    Minus,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum FactorOp {
+    Multiply,
+    Divide,
+    Modulus,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum UnaryOp {
+    Minus,
+    Not,
 }

@@ -1,4 +1,4 @@
-use crate::ast::{Expr, Stmt, AST};
+use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
 use crate::token::Token;
 
 pub struct Parser {
@@ -66,15 +66,139 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        let result = match self.current_token() {
-            Token::Number(n) => Ok(Expr::Number(*n)),
-            Token::String(s) => Ok(Expr::String(s.clone())),
-            Token::True => Ok(Expr::Boolean(true)),
-            Token::False => Ok(Expr::Boolean(false)),
-            Token::Identifier(id) => Ok(Expr::Identifier(id.clone())),
-            _ => Err("Expected expression".into()),
-        };
-        self.next(); // Consume number | string | identifier | "true" | "false"
-        result
+        self.parse_logic_expr()
+    }
+    fn parse_logic_expr(&mut self) -> Result<Expr, String> {
+        let left = self.parse_comp_expr()?;
+        if self.current_token() == &Token::And || self.current_token() == &Token::Or {
+            self.next(); // Consume 'and'
+            let right = self.parse_comp_expr()?;
+            Ok(Expr::Logic {
+                left: Box::new(left),
+                op: match self.current_token() {
+                    Token::And => LogicOp::And,
+                    Token::Or => LogicOp::Or,
+                    _ => unreachable!(),
+                },
+                right: Box::new(right),
+            })
+        } else {
+            Ok(left)
+        }
+    }
+    fn parse_comp_expr(&mut self) -> Result<Expr, String> {
+        let left = self.parse_term_expr()?;
+        if [
+            Token::Equal,
+            Token::NotEqual,
+            Token::LessThan,
+            Token::LessThanOrEqual,
+            Token::GreaterThan,
+            Token::GreaterThanOrEqual,
+        ]
+        .contains(self.current_token())
+        {
+            let op = match self.current_token() {
+                Token::Equal => CompOp::Equal,
+                Token::NotEqual => CompOp::NotEqual,
+                Token::LessThan => CompOp::LessThan,
+                Token::LessThanOrEqual => CompOp::LessThanOrEqual,
+                Token::GreaterThan => CompOp::GreaterThan,
+                Token::GreaterThanOrEqual => CompOp::GreaterThanOrEqual,
+                _ => unreachable!(),
+            };
+            self.next(); // Consume comparison operator
+            let right = self.parse_term_expr()?;
+            Ok(Expr::Comp {
+                left: Box::new(left),
+                op,
+                right: Box::new(right),
+            })
+        } else {
+            Ok(left)
+        }
+    }
+    fn parse_term_expr(&mut self) -> Result<Expr, String> {
+        let left = self.parse_factor_expr()?;
+        if [Token::Plus, Token::Minus].contains(self.current_token()) {
+            let op = match self.current_token() {
+                Token::Plus => TermOp::Plus,
+                Token::Minus => TermOp::Minus,
+                _ => unreachable!(),
+            };
+            self.next(); // Consume '+' or '-'
+            let right = self.parse_factor_expr()?;
+            Ok(Expr::Term {
+                left: Box::new(left),
+                op,
+                right: Box::new(right),
+            })
+        } else {
+            Ok(left)
+        }
+    }
+    fn parse_factor_expr(&mut self) -> Result<Expr, String> {
+        let left = self.parse_unary_expr()?;
+        if [Token::Asterisk, Token::Slash, Token::Percent].contains(self.current_token()) {
+            let op = match self.current_token() {
+                Token::Asterisk => FactorOp::Multiply,
+                Token::Slash => FactorOp::Divide,
+                Token::Percent => FactorOp::Modulus,
+                _ => unreachable!(),
+            };
+            self.next(); // Consume '*' or '/'
+            let right = self.parse_unary_expr()?;
+            Ok(Expr::Factor {
+                left: Box::new(left),
+                op,
+                right: Box::new(right),
+            })
+        } else {
+            Ok(left)
+        }
+    }
+    fn parse_unary_expr(&mut self) -> Result<Expr, String> {
+        if [Token::Minus, Token::Not].contains(self.current_token()) {
+            let op = match self.current_token() {
+                Token::Minus => UnaryOp::Minus,
+                Token::Not => UnaryOp::Not,
+                _ => unreachable!(),
+            };
+            self.next(); // Consume '-' or 'not'
+            let right = self.parse_unary_expr()?;
+            Ok(Expr::Unary {
+                op,
+                right: Box::new(right),
+            })
+        } else {
+            self.parse_primary_expr()
+        }
+    }
+    fn parse_primary_expr(&mut self) -> Result<Expr, String> {
+        let curr_tok = self.current_token().clone();
+        match curr_tok {
+            Token::Identifier(id) => {
+                self.next(); // Consume identifier
+                Ok(Expr::Identifier(id.clone()))
+            }
+            Token::Number(n) => {
+                self.next(); // Consume number
+                Ok(Expr::Number(n))
+            }
+            Token::String(s) => {
+                self.next(); // Consume string
+                Ok(Expr::String(s.clone()))
+            }
+            Token::LeftParen => {
+                self.next(); // Consume '('
+                let expr = self.parse_expr()?;
+                if self.current_token() != &Token::RightParen {
+                    return Err("Expected ')'".into());
+                }
+                self.next(); // Consume ')'
+                Ok(expr)
+            }
+            _ => Err("Expected identifier, number, string, or '('".into()),
+        }
     }
 }

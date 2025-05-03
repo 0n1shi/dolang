@@ -1,4 +1,4 @@
-use dolang::ast::{Expr, Stmt, AST};
+use dolang::ast::{CompOp, Expr, FactorOp, Stmt, TermOp, UnaryOp, AST};
 use dolang::parser::Parser;
 use dolang::token::Token;
 
@@ -6,12 +6,14 @@ use dolang::token::Token;
 fn test_parser() {
     let test_cases = vec![
         (
+            // 1
             vec![Token::Number(1.0)],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Number(1.0))],
             }),
         ),
         (
+            // let x = 1
             vec![
                 Token::Let,
                 Token::Identifier("x".to_string()),
@@ -23,6 +25,70 @@ fn test_parser() {
                     name: "x".to_string(),
                     val: Expr::Number(1.0),
                 }],
+            }),
+        ),
+        (
+            // 1 == 2,
+            vec![Token::Number(1.0), Token::Equal, Token::Number(2.0)],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Comp {
+                    left: Box::new(Expr::Number(1.0)),
+                    op: CompOp::Equal,
+                    right: Box::new(Expr::Number(2.0)),
+                })],
+            }),
+        ),
+        (
+            // 1 + 2
+            vec![Token::Number(1.0), Token::Plus, Token::Number(2.0)],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Term {
+                    left: Box::new(Expr::Number(1.0)),
+                    op: TermOp::Plus,
+                    right: Box::new(Expr::Number(2.0)),
+                })],
+            }),
+        ),
+        (
+            // let x = 1 + 2
+            vec![
+                Token::Let,
+                Token::Identifier("x".to_string()),
+                Token::Assign,
+                Token::Number(1.0),
+                Token::Plus,
+                Token::Number(2.0),
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Let {
+                    name: "x".to_string(),
+                    val: Expr::Term {
+                        left: Box::new(Expr::Number(1.0)),
+                        op: TermOp::Plus,
+                        right: Box::new(Expr::Number(2.0)),
+                    },
+                }],
+            }),
+        ),
+        (
+            // 2 * 3
+            vec![Token::Number(2.0), Token::Asterisk, Token::Number(3.0)],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Factor {
+                    left: Box::new(Expr::Number(2.0)),
+                    op: FactorOp::Multiply,
+                    right: Box::new(Expr::Number(3.0)),
+                })],
+            }),
+        ),
+        (
+            // -1
+            vec![Token::Minus, Token::Number(1.0)],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Unary {
+                    op: UnaryOp::Minus,
+                    right: Box::new(Expr::Number(1.0)),
+                })],
             }),
         ),
     ];
