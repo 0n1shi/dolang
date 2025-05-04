@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syntax keyword dolangKeyword let fn if else for in match return and or not
+syntax keyword dolangKeyword let fn if else for in match return and or not print
 syntax keyword dolangBoolean true false
 
 " Operators
