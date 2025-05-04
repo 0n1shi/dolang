@@ -1,4 +1,4 @@
-use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
+use crate::ast::{Case, CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
 use crate::token::Token;
 
 pub struct Parser {
@@ -109,6 +109,50 @@ impl Parser {
                 cond: Box::new(cond),
                 then: Box::new(then_branch),
                 else_: Box::new(else_branch),
+            });
+        } else if self.current_token() == &Token::Match {
+            self.next(); // Consume 'match'
+
+            let cond = self.parse_expr()?;
+
+            let mut cases = Vec::new();
+            while self.current_token() == &Token::Pipe {
+                self.next(); // Consume '|'
+
+                let pattern = match self.current_token() {
+                    Token::Number(n) => {
+                        Pattern::Number(*n)
+                    }
+                    Token::String(s) => {
+                        Pattern::String(s.clone())
+                    }
+                    Token::True => {
+                        Pattern::Boolean(true)
+                    }
+                    Token::False => {
+                        Pattern::Boolean(false)
+                    }
+                    Token::Underscore => {
+                        Pattern::Wildcard
+                    }
+                    _ => return Err("Expected pattern after '|'".into()),
+                };
+                self.next(); // Consume pattern
+
+                if self.current_token() != &Token::Arrow {
+                    return Err("Expected '->' after pattern".into());
+                }
+                self.next(); // Consume '->'
+
+                let body = self.parse_expr()?;
+                cases.push(Case { pattern, body });
+            }
+            if cases.is_empty() {
+                return Err("Expected at least one case after 'match'".into());
+            }
+            return Ok(Expr::Match {
+                cond: Box::new(cond),
+                cases,
             });
         } else if self.current_token() == &Token::Fn {
             self.next(); // Consume 'fn'

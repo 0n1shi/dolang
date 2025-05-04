@@ -1,4 +1,4 @@
-use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
+use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -111,6 +111,38 @@ impl Evaluator {
                     Value::Boolean(false) => self.eval_expr(else_, env),
                     _ => Err("Condition must be a boolean".into()),
                 }
+            }
+            Expr::Match { cond, cases } => {
+                let cond_val = self.eval_expr(cond, env)?;
+                for case in cases {
+                    match &case.pattern {
+                        Pattern::Number(n) => {
+                            if let Value::Number(val) = cond_val {
+                                if val == *n {
+                                    return self.eval_expr(&case.body, env);
+                                }
+                            }
+                        }
+                        Pattern::String(s) => {
+                            if let Value::String(ref val) = cond_val {
+                                if *val == *s {
+                                    return self.eval_expr(&case.body, env);
+                                }
+                            }
+                        }
+                        Pattern::Boolean(b) => {
+                            if let Value::Boolean(val) = cond_val {
+                                if val == *b {
+                                    return self.eval_expr(&case.body, env);
+                                }
+                            }
+                        }
+                        Pattern::Wildcard => {
+                            return self.eval_expr(&case.body, env);
+                        }
+                    }
+                }
+                Err("No matching case found".into())
             }
             Expr::List(items) => {
                 let mut values = Vec::new();

@@ -12,11 +12,9 @@ pub enum Stmt {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Pattern {
-    Identifier(String),
     Number(f64),
     String(String),
     Boolean(bool),
-    List(Vec<Pattern>),
     Wildcard,
 }
 
