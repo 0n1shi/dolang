@@ -27,7 +27,7 @@
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
 <comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }
 <term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
-<factor_expr>  ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
+<factor_expr>   ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
                   | <call_expr>
                   | <index_expr>
