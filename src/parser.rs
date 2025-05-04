@@ -161,7 +161,7 @@ impl Parser {
             self.next(); // Consume '->'
 
             let body = self.parse_expr()?;
-            return Ok(Expr::Lambda {
+            return Ok(Expr::Func {
                 args,
                 body: Box::new(body),
             });

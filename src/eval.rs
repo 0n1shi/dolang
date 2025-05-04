@@ -7,7 +7,7 @@ pub enum Value {
     Boolean(bool),
     List(Vec<Value>),
     Tuple(Vec<Value>),
-    Function {
+    Func {
         args: Vec<String>,
         body: Box<Expr>,
         env: Env,
@@ -100,6 +100,10 @@ impl Evaluator {
                             .collect();
                         println!("({})", tuple_str.join(", "));
                     }
+                    Value::Func { args, body, .. } => {
+                        let args_str = args.join(", ");
+                        println!("Function: {} -> {:?}", args_str, body);
+                    }
                 }
                 Ok(())
             }
@@ -108,6 +112,11 @@ impl Evaluator {
 
     fn eval_expr(&self, expr: &Expr, env: &mut Env) -> Result<Value, String> {
         match expr {
+            Expr::Func { args, body } => Ok(Value::Func {
+                args: args.clone(),
+                body: body.clone(),
+                env: env.clone(),
+            }),
             Expr::If { cond, then, else_ } => {
                 let cond_val = self.eval_expr(cond, env)?;
                 match cond_val {
@@ -240,6 +249,11 @@ impl Evaluator {
                         Value::Boolean(b) => Value::Boolean(*b),
                         Value::Tuple(t) => Value::Tuple(t.to_vec()),
                         Value::List(l) => Value::List(l.to_vec()),
+                        Value::Func { args, body, env } => Value::Func {
+                            args: args.clone(),
+                            body: body.clone(),
+                            env: env.clone(),
+                        },
                     })
                 } else {
                     Err(format!("Undefined variable: {}", expr))

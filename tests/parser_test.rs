@@ -220,13 +220,12 @@ fn test_parser() {
             }),
         ),
         (
-            "
-            let add = fn (x, y) -> x + y
-            "
+            "let add = fn (x, y) -> x + y",
             vec![
                 Token::Let,
                 Token::Identifier("add".to_string()),
                 Token::Assign,
+                Token::Fn,
                 Token::LeftParen,
                 Token::Identifier("x".to_string()),
                 Token::Comma,
@@ -240,7 +239,7 @@ fn test_parser() {
             Ok(AST {
                 stmts: vec![Stmt::Let {
                     name: "add".to_string(),
-                    val: Expr::Lambda {
+                    val: Expr::Func {
                         args: vec!["x".to_string(), "y".to_string()],
                         body: Box::new(Expr::Term {
                             left: Box::new(Expr::Identifier("x".to_string())),
@@ -250,7 +249,7 @@ fn test_parser() {
                     },
                 }],
             }),
-        )
+        ),
     ];
 
     for (_, tokens, expected) in test_cases {

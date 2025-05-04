@@ -15,7 +15,7 @@ pub enum Stmt {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
-    Lambda {
+    Func {
         args: Vec<String>,
         body: Box<Expr>,
     },
