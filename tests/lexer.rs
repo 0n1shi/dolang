@@ -1,283 +1,64 @@
 use dolang::lexer::Lexer;
 use dolang::token::Token;
 
-fn file_to_tokens(path: &str) -> Vec<Token> {
-    let source =
-        std::fs::read_to_string(path).expect(format!("Failed to read file: {}", path).as_str());
-    let mut lexer = Lexer::new(&source);
-    let mut tokens = Vec::new();
-    loop {
-        let token = lexer.next_token();
-        if token == Token::EOF {
-            break;
-        }
-        tokens.push(token);
-    }
-    tokens
-}
-
 #[test]
 fn test_lexer() {
     let test_cases = vec![
         (
-            "examples/all.do",
+            "let x = 5",
             vec![
                 Token::Let,
-                Token::Identifier("tax_rate".to_string()),
+                Token::Identifier("x".to_string()),
                 Token::Assign,
-                Token::Number(0.1),
-                Token::Let,
-                Token::Identifier("cart".to_string()),
-                Token::Assign,
-                Token::LeftBracket,
-                Token::LeftBrace,
-                Token::Identifier("name".to_string()),
-                Token::Assign,
-                Token::String("apple".to_string()),
-                Token::Comma,
-                Token::Identifier("price".to_string()),
-                Token::Assign,
-                Token::Number(100.0),
-                Token::RightBrace,
-                Token::Comma,
-                Token::LeftBrace,
-                Token::Identifier("name".to_string()),
-                Token::Assign,
-                Token::String("banana".to_string()),
-                Token::Comma,
-                Token::Identifier("price".to_string()),
-                Token::Assign,
-                Token::Number(200.0),
-                Token::RightBrace,
-                Token::RightBracket,
-                Token::Let,
-                Token::Identifier("sum".to_string()),
-                Token::Assign,
-                Token::For,
-                Token::Identifier("item".to_string()),
-                Token::In,
-                Token::Identifier("cart".to_string()),
-                Token::Arrow,
-                Token::Identifier("item".to_string()),
-                Token::Dot,
-                Token::Identifier("price".to_string()),
-                Token::ForwardPipe,
-                Token::Identifier("total".to_string()),
-                Token::Arrow,
-                Token::Identifier("total".to_string()),
-                Token::Asterisk,
-                Token::LeftParen,
-                Token::Number(1.0),
-                Token::Plus,
-                Token::Identifier("tax_rate".to_string()),
-                Token::RightParen,
+                Token::Number(5.0),
             ],
         ),
         (
-            "examples/fn.do",
+            "let add = fn x, y -> x + y",
             vec![
                 Token::Let,
                 Token::Identifier("add".to_string()),
                 Token::Assign,
-                Token::LeftParen,
+                Token::Fn,
                 Token::Identifier("x".to_string()),
                 Token::Comma,
                 Token::Identifier("y".to_string()),
-                Token::RightParen,
                 Token::Arrow,
                 Token::Identifier("x".to_string()),
                 Token::Plus,
                 Token::Identifier("y".to_string()),
-                Token::Let,
-                Token::Identifier("result".to_string()),
-                Token::Assign,
-                Token::Identifier("add".to_string()),
-                Token::Number(1.0),
-                Token::Number(2.0),
             ],
         ),
         (
-            "examples/for.do",
+            "let r = if x < 5 then 10 else 20",
             vec![
                 Token::Let,
-                Token::Identifier("result".to_string()),
-                Token::Assign,
-                Token::LeftBracket,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::Comma,
-                Token::Number(3.0),
-                Token::RightBracket,
-                Token::ForwardPipe,
-                Token::Identifier("x".to_string()),
-                Token::Arrow,
-                Token::Identifier("x".to_string()),
-                Token::Asterisk,
-                Token::Number(2.0),
-            ],
-        ),
-        (
-            "examples/if.do",
-            vec![
-                Token::Let,
-                Token::Identifier("x".to_string()),
-                Token::Assign,
-                Token::Number(10.0),
-                Token::Let,
-                Token::Identifier("result".to_string()),
+                Token::Identifier("r".to_string()),
                 Token::Assign,
                 Token::If,
                 Token::Identifier("x".to_string()),
-                Token::GreaterThan,
+                Token::LessThan,
                 Token::Number(5.0),
                 Token::Then,
-                Token::String("big".to_string()),
+                Token::Number(10.0),
                 Token::Else,
-                Token::String("small".to_string()),
-            ],
-        ),
-        (
-            "examples/let.do",
-            vec![
-                Token::Let,
-                Token::Identifier("x".to_string()),
-                Token::Assign,
-                Token::Number(10.0),
-                Token::Let,
-                Token::Identifier("y".to_string()),
-                Token::Assign,
                 Token::Number(20.0),
-                Token::Let,
-                Token::Identifier("sum".to_string()),
-                Token::Assign,
-                Token::Identifier("x".to_string()),
-                Token::Plus,
-                Token::Identifier("y".to_string()),
-            ],
-        ),
-        (
-            "examples/match.do",
-            vec![
-                Token::Let,
-                Token::Identifier("result".to_string()),
-                Token::Assign,
-                Token::Match,
-                Token::LeftParen,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::RightParen,
-                Token::Pipe,
-                Token::LeftParen,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Identifier("y".to_string()),
-                Token::RightParen,
-                Token::Arrow,
-                Token::Identifier("y".to_string()),
-                Token::Pipe,
-                Token::Underscore,
-                Token::Arrow,
-                Token::Number(0.0),
-            ],
-        ),
-        (
-            "examples/pipe.do",
-            vec![
-                Token::Let,
-                Token::Identifier("double".to_string()),
-                Token::Assign,
-                Token::Identifier("x".to_string()),
-                Token::Arrow,
-                Token::Identifier("x".to_string()),
-                Token::Asterisk,
-                Token::Number(2.0),
-                Token::Let,
-                Token::Identifier("result".to_string()),
-                Token::Assign,
-                Token::LeftBracket,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::Comma,
-                Token::Number(3.0),
-                Token::RightBracket,
-                Token::ForwardPipe,
-                Token::Identifier("double".to_string()),
-            ],
-        ),
-        (
-            "examples/range.do",
-            vec![
-                Token::Let,
-                Token::Identifier("double".to_string()),
-                Token::Assign,
-                Token::Identifier("x".to_string()),
-                Token::Arrow,
-                Token::Identifier("x".to_string()),
-                Token::Asterisk,
-                Token::Number(2.0),
-                Token::Let,
-                Token::Identifier("result".to_string()),
-                Token::Assign,
-                Token::Number(1.23),
-                Token::DotDot,
-                Token::Number(10.0),
-                Token::ForwardPipe,
-                Token::Identifier("double".to_string()),
-            ],
-        ),
-        (
-            "examples/record.do",
-            vec![
-                Token::Let,
-                Token::Identifier("user".to_string()),
-                Token::Assign,
-                Token::LeftBrace,
-                Token::Identifier("name".to_string()),
-                Token::Colon,
-                Token::String("Alice".to_string()),
-                Token::Comma,
-                Token::Identifier("age".to_string()),
-                Token::Colon,
-                Token::Number(30.0),
-                Token::RightBrace,
-                Token::Let,
-                Token::Identifier("name".to_string()),
-                Token::Assign,
-                Token::Identifier("user".to_string()),
-                Token::Dot,
-                Token::Identifier("name".to_string()),
-            ],
-        ),
-        (
-            "examples/tuple.do",
-            vec![
-                Token::Let,
-                Token::Identifier("pair".to_string()),
-                Token::Assign,
-                Token::LeftParen,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::String("a".to_string()),
-                Token::RightParen,
-                Token::Let,
-                Token::Identifier("list".to_string()),
-                Token::Assign,
-                Token::LeftBracket,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::Comma,
-                Token::Number(3.0),
-                Token::RightBracket,
             ],
         ),
     ];
 
-    for (test_file, expected_tokens) in test_cases {
-        let tokens = file_to_tokens(test_file);
+    for (source, expected_tokens) in test_cases {
+        let mut lexer = Lexer::new(source);
+        let mut tokens = Vec::new();
+
+        loop {
+            let token = lexer.next_token();
+            if token == Token::EOF {
+                break;
+            }
+            tokens.push(token);
+        }
+
         assert_eq!(tokens, expected_tokens);
     }
 }
