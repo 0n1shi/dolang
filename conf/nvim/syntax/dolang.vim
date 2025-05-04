@@ -1,7 +1,6 @@
 " Vim syntax file
 " Language: Dolang
-" Maintainer: You
-" Last Change: {{ today }}
+" Maintainer: Kazuki ONISHI
 
 if exists("b:current_syntax")
   finish
