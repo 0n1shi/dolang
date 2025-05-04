@@ -6,11 +6,24 @@ pub struct AST {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Stmt {
     Expr(Expr),
-    Let {
-        name: String,
-        val: Expr,
-    },
+    Let { name: String, val: Expr },
     Print(Expr),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Pattern {
+    Identifier(String),
+    Number(f64),
+    String(String),
+    Boolean(bool),
+    List(Vec<Pattern>),
+    Wildcard,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Case {
+    pub pattern: Pattern,
+    pub body: Expr,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -23,6 +36,10 @@ pub enum Expr {
         cond: Box<Expr>,
         then: Box<Expr>,
         else_: Box<Expr>,
+    },
+    Match {
+        cond: Box<Expr>,
+        cases: Vec<Case>,
     },
     List(Vec<Expr>),
     Logic {

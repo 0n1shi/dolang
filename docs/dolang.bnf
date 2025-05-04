@@ -1,14 +1,14 @@
-<stmt>                  ::= <let_stmt>
-                          | <expr_stmt>
-<let_stmt>              ::= "let" <id> "=" <expr>
-<print_stmt>            ::= "print" <expr>
-<expr_stmt>             ::= <expr>
+<stmt>          ::= <let_stmt>
+                  | <expr_stmt>
+<let_stmt>      ::= "let" <id> "=" <expr>
+<print_stmt>    ::= "print" <expr>
+<expr_stmt>     ::= <expr>
 
-<expr>          ::= <lambda_expr>
-                  | <if_expr>
-                  | <match_expr>
-                  | <list>
-                  | <logi_expr>
+<expr>  ::= <lambda_expr>
+          | <if_expr>
+          | <match_expr>
+          | <list>
+          | <logi_expr>
 
 <lambda_expr>   ::= fn "_" "->" <expr>
                   | fn <args> "->" <expr>

@@ -1,4 +1,4 @@
-use dolang::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
+use dolang::ast::{Case, CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
 use dolang::parser::Parser;
 use dolang::token::Token;
 
@@ -248,6 +248,57 @@ fn test_parser() {
                         }),
                     },
                 }],
+            }),
+        ),
+        (
+            "
+            let x = 1
+            let r = match x
+                | 1 -> 2
+                | 2 -> 3
+            ",
+            vec![
+                Token::Let,
+                Token::Identifier("x".to_string()),
+                Token::Assign,
+                Token::Number(1.0),
+                Token::Let,
+                Token::Identifier("r".to_string()),
+                Token::Assign,
+                Token::Match,
+                Token::Identifier("x".to_string()),
+                Token::Pipe,
+                Token::Number(1.0),
+                Token::Arrow,
+                Token::Number(2.0),
+                Token::Pipe,
+                Token::Number(2.0),
+                Token::Arrow,
+                Token::Number(3.0),
+            ],
+            Ok(AST {
+                stmts: vec![
+                    Stmt::Let {
+                        name: "x".to_string(),
+                        val: Expr::Number(1.0),
+                    },
+                    Stmt::Let {
+                        name: "r".to_string(),
+                        val: Expr::Match {
+                            cond: Box::new(Expr::Identifier("x".to_string())),
+                            cases: vec![
+                                Case {
+                                    pattern: Pattern::Number(1.0),
+                                    body: Expr::Number(2.0),
+                                },
+                                Case {
+                                    pattern: Pattern::Number(2.0),
+                                    body: Expr::Number(3.0),
+                                },
+                            ],
+                        },
+                    },
+                ],
             }),
         ),
     ];
