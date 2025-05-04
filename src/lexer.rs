@@ -28,6 +28,7 @@ impl Lexer {
                 "_" => Token::Underscore,
                 "let" => Token::Let,
                 "if" => Token::If,
+                "fn" => Token::Fn,
                 "then" => Token::Then,
                 "else" => Token::Else,
                 "for" => Token::For,

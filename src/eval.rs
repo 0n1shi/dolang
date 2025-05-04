@@ -6,7 +6,6 @@ pub enum Value {
     String(String),
     Boolean(bool),
     List(Vec<Value>),
-    Tuple(Vec<Value>),
     Func {
         args: Vec<String>,
         body: Box<Expr>,
@@ -88,18 +87,6 @@ impl Evaluator {
                             .collect();
                         println!("[{}]", list_str.join(", "));
                     }
-                    Value::Tuple(t) => {
-                        let tuple_str: Vec<String> = t
-                            .iter()
-                            .map(|v| match v {
-                                Value::Number(n) => n.to_string(),
-                                Value::String(s) => s.clone(),
-                                Value::Boolean(b) => b.to_string(),
-                                _ => "Unsupported type".to_string(),
-                            })
-                            .collect();
-                        println!("({})", tuple_str.join(", "));
-                    }
                     Value::Func { args, body, .. } => {
                         let args_str = args.join(", ");
                         println!("Function: {} -> {:?}", args_str, body);
@@ -126,13 +113,6 @@ impl Evaluator {
                 }
             }
             Expr::List(items) => {
-                let mut values = Vec::new();
-                for item in items {
-                    values.push(self.eval_expr(item, env)?);
-                }
-                Ok(Value::List(values))
-            }
-            Expr::Tuple(items) => {
                 let mut values = Vec::new();
                 for item in items {
                     values.push(self.eval_expr(item, env)?);
@@ -247,7 +227,6 @@ impl Evaluator {
                         Value::Number(n) => Value::Number(*n),
                         Value::String(s) => Value::String(s.clone()),
                         Value::Boolean(b) => Value::Boolean(*b),
-                        Value::Tuple(t) => Value::Tuple(t.to_vec()),
                         Value::List(l) => Value::List(l.to_vec()),
                         Value::Func { args, body, env } => Value::Func {
                             args: args.clone(),

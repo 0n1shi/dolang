@@ -8,7 +8,6 @@
                   | <if_expr>
                   | <match_expr>
                   | <list>
-                  | <tuple>
                   | <logi_expr>
 
 <lambda_expr>   ::= fn <args> "->" <expr>
@@ -25,7 +24,6 @@
                   | "_"
 
 <list>  ::= "[" [ <expr> { "," <expr> } ] "]"
-<tuple> ::= "(" <expr> "," <expr> { "," <expr> } ")"
 
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
 <comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }

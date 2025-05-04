@@ -145,25 +145,6 @@ fn test_parser() {
             }),
         ),
         (
-            "(1, 2, 3)",
-            vec![
-                Token::LeftParen,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::Comma,
-                Token::Number(3.0),
-                Token::RightParen,
-            ],
-            Ok(AST {
-                stmts: vec![Stmt::Expr(Expr::Tuple(vec![
-                    Expr::Number(1.0),
-                    Expr::Number(2.0),
-                    Expr::Number(3.0),
-                ]))],
-            }),
-        ),
-        (
             "if 1 then 2 else 3",
             vec![
                 Token::If,

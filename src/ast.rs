@@ -25,7 +25,6 @@ pub enum Expr {
         else_: Box<Expr>,
     },
     List(Vec<Expr>),
-    Tuple(Vec<Expr>),
     Logic {
         left: Box<Expr>,
         op: LogicOp,

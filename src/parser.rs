@@ -89,23 +89,6 @@ impl Parser {
             }
             self.next(); // Consume ']'
             return Ok(Expr::List(elements));
-        } else if self.current_token() == &Token::LeftParen {
-            self.next(); // Consume '('
-            let mut elements = Vec::new();
-            while self.current_token() != &Token::RightParen {
-                let expr = self.parse_expr()?;
-                elements.push(expr);
-                if self.current_token() == &Token::Comma {
-                    self.next(); // Consume ','
-                } else {
-                    break;
-                }
-            }
-            if self.current_token() != &Token::RightParen {
-                return Err("Expected ')'".into());
-            }
-            self.next(); // Consume ')'
-            return Ok(Expr::Tuple(elements));
         } else if self.current_token() == &Token::If {
             self.next(); // Consume 'if'
             let cond = self.parse_expr()?;
