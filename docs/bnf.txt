@@ -9,7 +9,6 @@
                   | <match_expr>
                   | <list>
                   | <tuple>
-                  | <let_stmt>
                   | <logi_expr>
 
 <lambda_expr>   ::= fn <args> "->" <expr>
@@ -34,12 +33,15 @@
 <factor_expr>  ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
                   | <call_expr>
+                  | <index_expr>
+                  | <primary>
 <call_expr>     ::= <identifier> "(" { <expr> { "," <expr> } } ")"
+<list_access>   ::= <identifier> "[" { <expr> { "," <expr> } } "]"
 
-<identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
-<primary>      ::= <literal>
+<primary>       ::= <literal>
                   | <identifier>
                   | "(" <expr> ")"
+<identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
 <literal>       ::= <number>
                   | <string>
                   | "true"

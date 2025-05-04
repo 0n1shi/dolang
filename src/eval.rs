@@ -1,9 +1,12 @@
 use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Stmt, TermOp, UnaryOp, AST};
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Number(f64),
     String(String),
     Boolean(bool),
+    List(Vec<Value>),
+    Tuple(Vec<Value>),
 }
 
 pub struct Env {
@@ -65,8 +68,32 @@ impl Evaluator {
                 let value = self.eval_expr(expr, env)?;
                 match value {
                     Value::Number(n) => println!("{}", n),
-                    Value::String(s) => println!("{}", s),
+                    Value::String(s) => println!("\"{}\"", s),
                     Value::Boolean(b) => println!("{}", b),
+                    Value::List(l) => {
+                        let list_str: Vec<String> = l
+                            .iter()
+                            .map(|v| match v {
+                                Value::Number(n) => n.to_string(),
+                                Value::String(s) => s.clone(),
+                                Value::Boolean(b) => b.to_string(),
+                                _ => "Unsupported type".to_string(),
+                            })
+                            .collect();
+                        println!("[{}]", list_str.join(", "));
+                    }
+                    Value::Tuple(t) => {
+                        let tuple_str: Vec<String> = t
+                            .iter()
+                            .map(|v| match v {
+                                Value::Number(n) => n.to_string(),
+                                Value::String(s) => s.clone(),
+                                Value::Boolean(b) => b.to_string(),
+                                _ => "Unsupported type".to_string(),
+                            })
+                            .collect();
+                        println!("({})", tuple_str.join(", "));
+                    }
                 }
                 Ok(())
             }
@@ -75,6 +102,28 @@ impl Evaluator {
 
     fn eval_expr(&self, expr: &Expr, env: &mut Env) -> Result<Value, String> {
         match expr {
+            Expr::If { cond, then, else_ } => {
+                let cond_val = self.eval_expr(cond, env)?;
+                match cond_val {
+                    Value::Boolean(true) => self.eval_expr(then, env),
+                    Value::Boolean(false) => self.eval_expr(else_, env),
+                    _ => Err("Condition must be a boolean".into()),
+                }
+            }
+            Expr::List(items) => {
+                let mut values = Vec::new();
+                for item in items {
+                    values.push(self.eval_expr(item, env)?);
+                }
+                Ok(Value::List(values))
+            }
+            Expr::Tuple(items) => {
+                let mut values = Vec::new();
+                for item in items {
+                    values.push(self.eval_expr(item, env)?);
+                }
+                Ok(Value::List(values))
+            }
             Expr::Logic { left, op, right } => {
                 let left_val = self.eval_expr(left, env)?;
                 let right_val = self.eval_expr(right, env)?;
@@ -183,15 +232,29 @@ impl Evaluator {
                         Value::Number(n) => Value::Number(*n),
                         Value::String(s) => Value::String(s.clone()),
                         Value::Boolean(b) => Value::Boolean(*b),
+                        Value::Tuple(t) => Value::Tuple(t.to_vec()),
+                        Value::List(l) => Value::List(l.to_vec()),
                     })
                 } else {
                     Err(format!("Undefined variable: {}", expr))
                 }
             }
+            Expr::ListAccess { list, index } => {
+                let list_val = self.eval_expr(list, env)?;
+                match list_val {
+                    Value::List(l) => {
+                        if *index as usize >= l.len() {
+                            Err(format!("Index out of bounds: {}", index))
+                        } else {
+                            Ok(l[*index as usize].clone())
+                        }
+                    }
+                    _ => Err("List access requires a list".into()),
+                }
+            }
             Expr::Number(n) => Ok(Value::Number(*n)),
             Expr::String(s) => Ok(Value::String(s.clone())),
             Expr::Boolean(b) => Ok(Value::Boolean(*b)),
-            _ => Err("Unsupported expression".into()),
         }
     }
 }

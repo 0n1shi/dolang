@@ -163,6 +163,62 @@ fn test_parser() {
                 ]))],
             }),
         ),
+        (
+            "if 1 then 2 else 3",
+            vec![
+                Token::If,
+                Token::Number(1.0),
+                Token::Then,
+                Token::Number(2.0),
+                Token::Else,
+                Token::Number(3.0),
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::If {
+                    cond: Box::new(Expr::Number(1.0)),
+                    then: Box::new(Expr::Number(2.0)),
+                    else_: Box::new(Expr::Number(3.0)),
+                })],
+            }),
+        ),
+        (
+            "
+            let x = [1, 2, 3]
+            x[1]
+            ",
+            vec![
+                Token::Let,
+                Token::Identifier("x".to_string()),
+                Token::Assign,
+                Token::LeftBracket,
+                Token::Number(1.0),
+                Token::Comma,
+                Token::Number(2.0),
+                Token::Comma,
+                Token::Number(3.0),
+                Token::RightBracket,
+                Token::Identifier("x".to_string()),
+                Token::LeftBracket,
+                Token::Number(1.0),
+                Token::RightBracket,
+            ],
+            Ok(AST {
+                stmts: vec![
+                    Stmt::Let {
+                        name: "x".to_string(),
+                        val: Expr::List(vec![
+                            Expr::Number(1.0),
+                            Expr::Number(2.0),
+                            Expr::Number(3.0),
+                        ]),
+                    },
+                    Stmt::Expr(Expr::ListAccess {
+                        list: Box::new(Expr::Identifier("x".to_string())),
+                        index: 1.0,
+                    }),
+                ],
+            }),
+        ),
     ];
 
     for (_, tokens, expected) in test_cases {

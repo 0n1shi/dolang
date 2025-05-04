@@ -106,6 +106,27 @@ impl Parser {
             }
             self.next(); // Consume ')'
             return Ok(Expr::Tuple(elements));
+        } else if self.current_token() == &Token::If {
+            self.next(); // Consume 'if'
+            let cond = self.parse_expr()?;
+
+            if self.current_token() != &Token::Then {
+                return Err("Expected 'then' after 'if' condition".into());
+            }
+            self.next(); // Consume 'then'
+            let then_branch = self.parse_expr()?;
+
+            if self.current_token() != &Token::Else {
+                return Err("Expected 'else' after 'then' branch".into());
+            }
+            self.next(); // Consume 'else'
+            let else_branch = self.parse_expr()?;
+
+            return Ok(Expr::If {
+                cond: Box::new(cond),
+                then: Box::new(then_branch),
+                else_: Box::new(else_branch),
+            });
         } else {
             return self.parse_logic_expr();
         }
@@ -233,6 +254,27 @@ impl Parser {
         match curr_tok {
             Token::Identifier(id) => {
                 self.next(); // Consume identifier
+
+                if self.current_token() == &Token::LeftBracket {
+                    self.next(); // Consume '['
+
+                    let index = match self.current_token() {
+                        Token::Number(n) => *n,
+                        _ => return Err("Expected number for list index".into()),
+                    };
+                    self.next(); // Consume number
+
+                    if self.current_token() != &Token::RightBracket {
+                        return Err("Expected ']'".into());
+                    }
+                    self.next(); // Consume ']'
+
+                    return Ok(Expr::ListAccess {
+                        list: Box::new(Expr::Identifier(id.clone())),
+                        index,
+                    });
+                }
+
                 Ok(Expr::Identifier(id.clone()))
             }
             Token::Number(n) => {
