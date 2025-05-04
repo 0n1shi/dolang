@@ -201,17 +201,36 @@ fn test_parser() {
             }),
         ),
         (
-            "let add = fn (x, y) -> x + y",
+            "let pi = fn _ -> 3.14",
+            vec![
+                Token::Let,
+                Token::Identifier("pi".to_string()),
+                Token::Assign,
+                Token::Fn,
+                Token::Underscore,
+                Token::Arrow,
+                Token::Number(3.14),
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Let {
+                    name: "pi".to_string(),
+                    val: Expr::Func {
+                        args: vec![],
+                        body: Box::new(Expr::Number(3.14)),
+                    },
+                }],
+            }),
+        ),
+        (
+            "let add = fn x, y -> x + y",
             vec![
                 Token::Let,
                 Token::Identifier("add".to_string()),
                 Token::Assign,
                 Token::Fn,
-                Token::LeftParen,
                 Token::Identifier("x".to_string()),
                 Token::Comma,
                 Token::Identifier("y".to_string()),
-                Token::RightParen,
                 Token::Arrow,
                 Token::Identifier("x".to_string()),
                 Token::Plus,

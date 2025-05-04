@@ -53,6 +53,10 @@ pub enum Expr {
         list: Box<Expr>,
         index: f64,
     },
+    Call {
+        func: Box<Expr>,
+        args: Vec<Expr>,
+    },
     Identifier(String),
     Number(f64),
     String(String),

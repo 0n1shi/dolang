@@ -10,10 +10,9 @@
                   | <list>
                   | <logi_expr>
 
-<lambda_expr>   ::= fn <args> "->" <expr>
-                  | fn <arg> "->" <expr>
-<arg>           ::= <ident>
-<args>          ::= "(" <identifier> { "," <identifier> } ")"
+<lambda_expr>   ::= fn "_" "->" <expr>
+                  | fn <args> "->" <expr>
+<args>          ::= <identifier> { "," <identifier> }
 
 <if_expr>   ::= "if" <expr> "then" <expr> "else" <expr>
 

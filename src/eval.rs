@@ -251,6 +251,32 @@ impl Evaluator {
                     _ => Err("List access requires a list".into()),
                 }
             }
+            Expr::Call { func, args } => {
+                let func_val = self.eval_expr(func, env)?;
+                match func_val {
+                    Value::Func {
+                        args: f_args,
+                        body,
+                        env: f_env,
+                    } => {
+                        if args.len() != f_args.len() {
+                            return Err(format!(
+                                "Function {} expects {} arguments, got {}",
+                                f_args.join(", "),
+                                f_args.len(),
+                                args.len()
+                            ));
+                        }
+                        let mut new_env = Env::new(Some(Box::new(f_env)));
+                        for (arg, arg_name) in args.iter().zip(f_args) {
+                            let arg_val = self.eval_expr(arg, env)?;
+                            new_env.set(arg_name, arg_val);
+                        }
+                        self.eval_expr(&body, &mut new_env)
+                    }
+                    _ => Err("Function call requires a function".into()),
+                }
+            }
             Expr::Number(n) => Ok(Value::Number(*n)),
             Expr::String(s) => Ok(Value::String(s.clone())),
             Expr::Boolean(b) => Ok(Value::Boolean(*b)),

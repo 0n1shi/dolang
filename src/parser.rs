@@ -113,13 +113,12 @@ impl Parser {
         } else if self.current_token() == &Token::Fn {
             self.next(); // Consume 'fn'
 
-            if self.current_token() != &Token::LeftParen {
-                return Err("Expected '(' after 'fn'".into());
+            if self.current_token() == &Token::Underscore {
+                self.next(); // Consume '_'
             }
-            self.next(); // Consume '('
 
             let mut args = Vec::new();
-            while self.current_token() != &Token::RightParen {
+            while self.current_token() != &Token::Arrow {
                 match self.current_token() {
                     Token::Identifier(id) => {
                         args.push(id.clone());
@@ -133,10 +132,6 @@ impl Parser {
                     break;
                 }
             }
-            if self.current_token() != &Token::RightParen {
-                return Err("Expected ')' after function arguments".into());
-            }
-            self.next(); // Consume ')'
 
             if self.current_token() != &Token::Arrow {
                 return Err("Expected '->' after function arguments".into());
@@ -276,27 +271,55 @@ impl Parser {
             Token::Identifier(id) => {
                 self.next(); // Consume identifier
 
-                if self.current_token() == &Token::LeftBracket {
-                    self.next(); // Consume '['
+                match self.current_token() {
+                    // list access
+                    Token::LeftBracket => {
+                        self.next(); // Consume '['
 
-                    let index = match self.current_token() {
-                        Token::Number(n) => *n,
-                        _ => return Err("Expected number for list index".into()),
-                    };
-                    self.next(); // Consume number
+                        let index = match self.current_token() {
+                            Token::Number(n) => *n,
+                            _ => return Err("Expected number for list index".into()),
+                        };
+                        self.next(); // Consume number
 
-                    if self.current_token() != &Token::RightBracket {
-                        return Err("Expected ']'".into());
+                        if self.current_token() != &Token::RightBracket {
+                            return Err("Expected ']'".into());
+                        }
+                        self.next(); // Consume ']'
+
+                        return Ok(Expr::ListAccess {
+                            list: Box::new(Expr::Identifier(id.clone())),
+                            index,
+                        });
                     }
-                    self.next(); // Consume ']'
+                    // function call
+                    Token::LeftParen => {
+                        self.next(); // Consume '('
 
-                    return Ok(Expr::ListAccess {
-                        list: Box::new(Expr::Identifier(id.clone())),
-                        index,
-                    });
+                        let mut args = Vec::new();
+                        while self.current_token() != &Token::RightParen {
+                            let arg = self.parse_expr()?;
+                            args.push(arg);
+                            if self.current_token() == &Token::Comma {
+                                self.next(); // Consume ','
+                            } else {
+                                break;
+                            }
+                        }
+                        if self.current_token() != &Token::RightParen {
+                            return Err("Expected ')'".into());
+                        }
+                        self.next(); // Consume ')'
+
+                        return Ok(Expr::Call {
+                            func: Box::new(Expr::Identifier(id.clone())),
+                            args,
+                        });
+                    }
+                    _ => {
+                        return Ok(Expr::Identifier(id.clone()));
+                    }
                 }
-
-                Ok(Expr::Identifier(id.clone()))
             }
             Token::Number(n) => {
                 self.next(); // Consume number
@@ -326,7 +349,7 @@ impl Parser {
 
                 Ok(expr)
             }
-            _ => Err("Expected identifier, number, string, or '('".into()),
+            _ => Err("Expected identifier, number, string, boolean, or '('".into()),
         }
     }
 }

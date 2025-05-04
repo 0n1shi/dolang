@@ -14,6 +14,18 @@ fn test_lexer() {
             ],
         ),
         (
+            "let pi = fn _ -> 3.14",
+            vec![
+                Token::Let,
+                Token::Identifier("pi".to_string()),
+                Token::Assign,
+                Token::Fn,
+                Token::Underscore,
+                Token::Arrow,
+                Token::Number(3.14),
+            ],
+        ),
+        (
             "let add = fn x, y -> x + y",
             vec![
                 Token::Let,
