@@ -219,6 +219,38 @@ fn test_parser() {
                 ],
             }),
         ),
+        (
+            "
+            let add = fn (x, y) => x + y
+            "
+            vec![
+                Token::Let,
+                Token::Identifier("add".to_string()),
+                Token::Assign,
+                Token::LeftParen,
+                Token::Identifier("x".to_string()),
+                Token::Comma,
+                Token::Identifier("y".to_string()),
+                Token::RightParen,
+                Token::Arrow,
+                Token::Identifier("x".to_string()),
+                Token::Plus,
+                Token::Identifier("y".to_string()),
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Let {
+                    name: "add".to_string(),
+                    val: Expr::Lambda {
+                        args: vec!["x".to_string(), "y".to_string()],
+                        body: Box::new(Expr::Term {
+                            left: Box::new(Expr::Identifier("x".to_string())),
+                            op: TermOp::Plus,
+                            right: Box::new(Expr::Identifier("y".to_string())),
+                        }),
+                    },
+                }],
+            }),
+        )
     ];
 
     for (_, tokens, expected) in test_cases {

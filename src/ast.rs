@@ -15,6 +15,10 @@ pub enum Stmt {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
+    Lambda {
+        args: Vec<String>,
+        body: Box<Expr>,
+    },
     If {
         cond: Box<Expr>,
         then: Box<Expr>,
