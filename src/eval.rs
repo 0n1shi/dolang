@@ -73,7 +73,7 @@ impl Evaluator {
                 let value = self.eval_expr(expr, env)?;
                 match value {
                     Value::Number(n) => println!("{}", n),
-                    Value::String(s) => println!("\"{}\"", s),
+                    Value::String(s) => println!("{}", s),
                     Value::Boolean(b) => println!("{}", b),
                     Value::List(l) => {
                         let list_str: Vec<String> = l
