@@ -127,6 +127,44 @@ impl Parser {
                 then: Box::new(then_branch),
                 else_: Box::new(else_branch),
             });
+        } else if self.current_token() == &Token::Fn {
+            self.next(); // Consume 'fn'
+
+            if self.current_token() != &Token::LeftParen {
+                return Err("Expected '(' after 'fn'".into());
+            }
+            self.next(); // Consume '('
+
+            let mut args = Vec::new();
+            while self.current_token() != &Token::RightParen {
+                match self.current_token() {
+                    Token::Identifier(id) => {
+                        args.push(id.clone());
+                        self.next(); // Consume identifier
+                    }
+                    _ => return Err("Expected identifier in function arguments".into()),
+                }
+                if self.current_token() == &Token::Comma {
+                    self.next(); // Consume ','
+                } else {
+                    break;
+                }
+            }
+            if self.current_token() != &Token::RightParen {
+                return Err("Expected ')' after function arguments".into());
+            }
+            self.next(); // Consume ')'
+
+            if self.current_token() != &Token::Arrow {
+                return Err("Expected '->' after function arguments".into());
+            }
+            self.next(); // Consume '->'
+
+            let body = self.parse_expr()?;
+            return Ok(Expr::Lambda {
+                args,
+                body: Box::new(body),
+            });
         } else {
             return self.parse_logic_expr();
         }

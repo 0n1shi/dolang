@@ -221,7 +221,7 @@ fn test_parser() {
         ),
         (
             "
-            let add = fn (x, y) => x + y
+            let add = fn (x, y) -> x + y
             "
             vec![
                 Token::Let,

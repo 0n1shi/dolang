@@ -5,6 +5,7 @@ pub enum Token {
     Then,               // then
     Else,               // else
     For,                // for
+    Fn,                 // fn
     In,                 // in
     Match,              // match
     Print,              // print

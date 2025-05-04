@@ -7,8 +7,14 @@ pub enum Value {
     Boolean(bool),
     List(Vec<Value>),
     Tuple(Vec<Value>),
+    Function {
+        args: Vec<String>,
+        body: Box<Expr>,
+        env: Env,
+    },
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Env {
     variables: std::collections::HashMap<String, Value>,
     parent: Option<Box<Env>>,
