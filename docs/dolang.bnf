@@ -24,6 +24,7 @@
 
 <list>  ::= "[" [ <expr> { "," <expr> } ] "]"
 
+<pipe_expr>     ::= <logic_expr> { "|>" <logic_expr> }
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
 <comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }
 <term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
