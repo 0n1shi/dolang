@@ -8,7 +8,7 @@
           | <if_expr>
           | <match_expr>
           | <list>
-          | <logi_expr>
+          | <logic_expr>
 
 <lambda_expr>   ::= fn "_" "->" <expr>
                   | fn <args> "->" <expr>
@@ -24,7 +24,6 @@
 
 <list>  ::= "[" [ <expr> { "," <expr> } ] "]"
 
-<pipe_expr>     ::= <logic_expr> { "|>" <logic_expr> }
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
 <comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }
 <term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
