@@ -1,46 +1,6 @@
 use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Value {
-    Number(f64),
-    String(String),
-    Boolean(bool),
-    List(Vec<Value>),
-    Func {
-        args: Vec<String>,
-        body: Box<Expr>,
-        env: Env,
-    },
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Env {
-    variables: std::collections::HashMap<String, Value>,
-    parent: Option<Box<Env>>,
-}
-
-impl Env {
-    pub fn new(parent: Option<Box<Env>>) -> Self {
-        Env {
-            variables: std::collections::HashMap::new(),
-            parent,
-        }
-    }
-
-    pub fn set(&mut self, name: String, value: Value) {
-        self.variables.insert(name, value);
-    }
-
-    pub fn get(&self, name: &str) -> Option<&Value> {
-        if let Some(value) = self.variables.get(name) {
-            Some(value)
-        } else if let Some(parent) = &self.parent {
-            parent.get(name)
-        } else {
-            None
-        }
-    }
-}
+use crate::eval::env::Env;
+use crate::eval::value::Value;
 
 pub struct Evaluator {
     ast: AST,
@@ -90,6 +50,9 @@ impl Evaluator {
                     Value::Func { args, body, .. } => {
                         let args_str = args.join(", ");
                         println!("Function: {} -> {:?}", args_str, body);
+                    }
+                    Value::BuiltinFunc { name, .. } => {
+                        println!("Builtin function: {}", name);
                     }
                 }
                 Ok(())
@@ -264,6 +227,10 @@ impl Evaluator {
                             args: args.clone(),
                             body: body.clone(),
                             env: env.clone(),
+                        },
+                        Value::BuiltinFunc { name, func } => Value::BuiltinFunc {
+                            name: name.clone(),
+                            func: *func,
                         },
                     })
                 } else {

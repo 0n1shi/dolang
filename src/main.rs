@@ -1,4 +1,6 @@
-use dolang::{eval, lexer, parser, token};
+use dolang::{lexer, parser, token};
+use dolang::eval::env::Env;
+use dolang::eval::eval::Evaluator;
 use std::io::{self, Write};
 
 const VERSION: &str = "0.1.0";
@@ -38,9 +40,9 @@ fn run(filename: &str) {
         }
     };
 
-    let evaluator = eval::Evaluator::new(ast);
+    let evaluator = Evaluator::new(ast);
     evaluator
-        .eval(&mut eval::Env::new(None))
+        .eval(&mut Env::new(None))
         .unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });
@@ -48,7 +50,7 @@ fn run(filename: &str) {
 
 fn repl() {
     println!("Welcome to Dolang :)");
-    let mut env = eval::Env::new(None);
+    let mut env = Env::new(None);
 
     loop {
         print!("repl> ");
@@ -89,7 +91,7 @@ fn repl() {
             }
         };
 
-        let evaluator = eval::Evaluator::new(ast);
+        let evaluator = Evaluator::new(ast);
         evaluator.eval(&mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });
