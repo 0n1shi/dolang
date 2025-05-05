@@ -45,7 +45,6 @@ pub enum Expr {
         op: LogicOp,
         right: Box<Expr>,
     },
-    Pipe(Vec<Expr>),
     Comp {
         left: Box<Expr>,
         op: CompOp,
