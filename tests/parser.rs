@@ -215,7 +215,7 @@ fn test_parser() {
                 stmts: vec![Stmt::Let {
                     name: "pi".to_string(),
                     val: Expr::Func {
-                        args: vec![],
+                        params: vec![],
                         body: Box::new(Expr::Number(3.14)),
                     },
                 }],
@@ -240,7 +240,7 @@ fn test_parser() {
                 stmts: vec![Stmt::Let {
                     name: "add".to_string(),
                     val: Expr::Func {
-                        args: vec!["x".to_string(), "y".to_string()],
+                        params: vec!["x".to_string(), "y".to_string()],
                         body: Box::new(Expr::Term {
                             left: Box::new(Expr::Identifier("x".to_string())),
                             op: TermOp::Plus,
@@ -299,6 +299,21 @@ fn test_parser() {
                         },
                     },
                 ],
+            }),
+        ),
+        (
+            "print(\"Hello, World!\")",
+            vec![
+                Token::Identifier("print".to_string()),
+                Token::LeftParen,
+                Token::String("Hello, World!".to_string()),
+                Token::RightParen,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Call {
+                    func: Box::new(Expr::Identifier("print".to_string())),
+                    args: vec![Expr::String("Hello, World!".to_string())],
+                })],
             }),
         ),
     ];

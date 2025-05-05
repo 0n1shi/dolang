@@ -1,6 +1,6 @@
-use dolang::{lexer, parser, token};
 use dolang::eval::env::Env;
-use dolang::eval::eval::Evaluator;
+use dolang::eval::eval::eval;
+use dolang::{lexer, parser, token};
 use std::io::{self, Write};
 
 const VERSION: &str = "0.1.0";
@@ -15,7 +15,8 @@ fn main() {
             _ => run(&args[1]),
         }
     } else {
-        help();
+        println!("No arguments provided. Starting REPL...");
+        repl(); // Start the REPL if no arguments are provided
     }
 }
 
@@ -40,12 +41,9 @@ fn run(filename: &str) {
         }
     };
 
-    let evaluator = Evaluator::new(ast);
-    evaluator
-        .eval(&mut Env::new(None))
-        .unwrap_or_else(|e| {
-            eprintln!("Error evaluating input: {}", e);
-        });
+    eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
+        eprintln!("Error evaluating input: {}", e);
+    });
 }
 
 fn repl() {
@@ -91,8 +89,7 @@ fn repl() {
             }
         };
 
-        let evaluator = Evaluator::new(ast);
-        evaluator.eval(&mut env).unwrap_or_else(|e| {
+        eval(ast, &mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });
     }

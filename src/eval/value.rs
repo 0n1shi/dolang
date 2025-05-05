@@ -14,6 +14,6 @@ pub enum Value {
     },
     BuiltinFunc {
         name: String,
-        func: fn(&[Value]) -> Result<Value, String>,
+        func: fn(Vec<Value>) -> Result<Value, String>,
     },
 }

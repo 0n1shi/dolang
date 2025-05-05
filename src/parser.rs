@@ -44,7 +44,6 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Stmt, String> {
         match self.current_token() {
             Token::Let => self.parse_let_stmt(),
-            Token::Print => self.parse_print_stmt(),
             _ => self.parse_expr_stmt(),
         }
     }
@@ -61,11 +60,6 @@ impl Parser {
         self.next(); // Consume '='
         let val = self.parse_expr()?;
         Ok(Stmt::Let { name, val })
-    }
-    fn parse_print_stmt(&mut self) -> Result<Stmt, String> {
-        self.next(); // Consume 'print'
-        let expr = self.parse_expr()?;
-        Ok(Stmt::Print(expr))
     }
     fn parse_expr_stmt(&mut self) -> Result<Stmt, String> {
         let expr = self.parse_expr()?;
@@ -161,11 +155,11 @@ impl Parser {
                 self.next(); // Consume '_'
             }
 
-            let mut args = Vec::new();
+            let mut params = Vec::new();
             while self.current_token() != &Token::Arrow {
                 match self.current_token() {
                     Token::Identifier(id) => {
-                        args.push(id.clone());
+                        params.push(id.clone());
                         self.next(); // Consume identifier
                     }
                     _ => return Err("Expected identifier in function arguments".into()),
@@ -184,7 +178,7 @@ impl Parser {
 
             let body = self.parse_expr()?;
             return Ok(Expr::Func {
-                args,
+                params,
                 body: Box::new(body),
             });
         } else {

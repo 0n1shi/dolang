@@ -27,7 +27,7 @@ pub struct Case {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Func {
-        args: Vec<String>,
+        params: Vec<String>,
         body: Box<Expr>,
     },
     If {

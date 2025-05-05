@@ -34,7 +34,6 @@ impl Lexer {
                 "for" => Token::For,
                 "in" => Token::In,
                 "match" => Token::Match,
-                "print" => Token::Print,
                 "return" => Token::Return,
                 "and" => Token::And,
                 "or" => Token::Or,

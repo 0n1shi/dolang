@@ -8,7 +8,6 @@ pub enum Token {
     Fn,                 // fn
     In,                 // in
     Match,              // match
-    Print,              // print
     Pipe,               // |
     Underscore,         // _
     ForwardPipe,        // |>

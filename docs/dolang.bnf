@@ -11,7 +11,7 @@
           | <logic_expr>
 
 <lambda_expr>   ::= fn "_" "->" <expr>
-                  | fn <args> "->" <expr>
+                  | fn <params> "->" <expr>
 <args>          ::= <identifier> { "," <identifier> }
 
 <if_expr>   ::= "if" <expr> "then" <expr> "else" <expr>
