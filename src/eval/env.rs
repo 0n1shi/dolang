@@ -1,4 +1,4 @@
-use crate::eval::builtin;
+use crate::eval::builtin::BUILTIN_FUNCTIONS;
 use crate::eval::value::Value;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,20 +12,16 @@ impl Env {
         let mut variables = std::collections::HashMap::new();
 
         // register built-in functions
-        variables.insert(
-            "map".to_string(),
-            Value::BuiltinFunc {
-                name: "map".to_string(),
-                func: builtin::map,
-            },
-        );
-        variables.insert(
-            "print".to_string(),
-            Value::BuiltinFunc {
-                name: "print".to_string(),
-                func: builtin::print,
-            },
-        );
+        for (name, func) in BUILTIN_FUNCTIONS.iter() {
+            variables.insert(
+                name.to_string(),
+                Value::BuiltinFunc {
+                    name: name.to_string(),
+                    func: *func,
+                },
+            );
+        }
+
         Env { variables, parent }
     }
 

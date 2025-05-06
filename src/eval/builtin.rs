@@ -1,6 +1,13 @@
 use super::eval::eval_expr;
 use super::value::Value;
 
+pub const BUILTIN_FUNCTIONS: &[(&str, fn(Vec<Value>) -> Result<Value, String>)] = &[
+    ("map", map),
+    ("filter", filter),
+    ("print", print),
+    ("append", append),
+];
+
 pub fn map(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
         [Value::Func { args, body, env }, Value::List(items)] => {
@@ -14,6 +21,24 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
             Ok(Value::List(results))
         }
         _ => Err("map: expected a function and a list".to_string()),
+    }
+}
+
+pub fn filter(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::Func { args, body, env }, Value::List(items)] => {
+            let mut results = Vec::new();
+            for item in items {
+                let mut new_env = env.clone();
+                new_env.set(args[0].clone(), item.clone());
+                let result = eval_expr(&body, &mut new_env)?;
+                if result == Value::Boolean(true) {
+                    results.push(item.clone());
+                }
+            }
+            Ok(Value::List(results))
+        }
+        _ => Err("filter: expected a function and a list".to_string()),
     }
 }
 
@@ -45,4 +70,20 @@ pub fn print(args: Vec<Value>) -> Result<Value, String> {
         }
     }
     Ok(Value::Number(0.0)) // Return a dummy
+}
+
+pub fn append(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(list1), Value::List(list2)] => {
+            let mut new_list = list1.clone();
+            new_list.extend(list2.clone());
+            Ok(Value::List(new_list))
+        }
+        [Value::List(list1), item] => {
+            let mut new_list = list1.clone();
+            new_list.push(item.clone());
+            Ok(Value::List(new_list))
+        }
+        _ => Err("append: expected two lists".to_string()),
+    }
 }

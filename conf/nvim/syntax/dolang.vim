@@ -7,7 +7,8 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syntax keyword dolangKeyword let fn if else for in match return and or not print
+syntax keyword dolangKeyword let fn if else for in match return and or not
+syntax keyword dolangBuiltIn print println map filter append
 syntax keyword dolangBoolean true false
 
 " Operators
@@ -39,6 +40,7 @@ syntax match dolangDot /\./
 
 " Highlighting links
 highlight link dolangKeyword Keyword
+highlight link dolangBuiltIn Keyword
 highlight link dolangBoolean Boolean
 highlight link dolangOperator Operator
 highlight link dolangPipeOperator Special
