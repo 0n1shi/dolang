@@ -193,14 +193,10 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                         body: body.clone(),
                         env: env.clone(),
                     },
-                    Value::BuiltinFunc {
-                        name,
-                        func,
-                        args_len,
-                    } => Value::BuiltinFunc {
+                    Value::BuiltinFunc { name, func, args } => Value::BuiltinFunc {
                         name: name.clone(),
                         func: func.clone(),
-                        args_len: *args_len,
+                        args: args.clone(),
                     },
                 })
             } else {
@@ -221,10 +217,10 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
             }
         }
         Expr::Call {
-            func: func_name,
-            args,
+            name: call_name,
+            args: call_args,
         } => {
-            let func_val = eval_expr(func_name, env)?;
+            let func_val = eval_expr(call_name, env)?;
             match func_val {
                 Value::Func {
                     params,
@@ -232,22 +228,22 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     env: func_env,
                 } => {
                     // normal function call
-                    if args.len() == params.len() {
+                    if call_args.len() == params.len() {
                         let mut new_env = Env::new(Some(Box::new(func_env)));
-                        for (arg, arg_name) in args.iter().zip(params) {
+                        for (arg, arg_name) in call_args.iter().zip(params) {
                             let arg_val = eval_expr(arg, env)?;
                             new_env.set(arg_name, arg_val);
                         }
                         eval_expr(&body, &mut new_env)
                     }
                     // currying
-                    else if params.len() > args.len() {
+                    else if params.len() > call_args.len() {
                         let mut new_env = Env::new(Some(Box::new(func_env)));
-                        for (arg, arg_name) in args.iter().zip(params.iter()) {
+                        for (arg, arg_name) in call_args.iter().zip(params.iter()) {
                             let arg_val = eval_expr(arg, env)?;
                             new_env.set(arg_name.clone(), arg_val);
                         }
-                        let remaining_params = params[args.len()..].to_vec();
+                        let remaining_params = params[call_args.len()..].to_vec();
                         let remaining_body = body.clone();
                         Ok(Value::Func {
                             params: remaining_params,
@@ -257,37 +253,37 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     } else {
                         Err(format!(
                             "Function {:?} requires {} arguments, but got {}",
-                            func_name,
+                            call_name,
                             params.len(),
-                            args.len()
+                            call_args.len()
                         ))
                     }
                 }
                 Value::BuiltinFunc {
                     name: _,
                     func,
-                    args_len,
+                    args,
                 } => {
                     // normal function call
-                    if args.len() == args_len {
+                    if call_args.len() == args.length {
                         let mut arg_vals = Vec::new();
-                        for arg in args {
+                        for arg in call_args {
                             arg_vals.push(eval_expr(arg, env)?);
                         }
                         func(arg_vals)
                     }
                     // currying
-                    else if args_len > args.len() {
+                    else if args.length > call_args.len() {
                         let mut new_env = Env::new(Some(Box::new(env.clone())));
-                        for (arg, arg_name) in args.iter().zip(0..args_len) {
+                        for (arg, arg_name) in call_args.iter().zip(0..args.length) {
                             let arg_val = eval_expr(arg, env)?;
                             new_env.set(arg_name.to_string(), arg_val);
                         }
-                        let remaining_params = (args_len - args.len()) as usize;
+                        let remaining_params = (call_args.len() - args.length) as usize;
                         Ok(Value::Func {
                             params: vec!["...".to_string(); remaining_params],
                             body: Box::new(Expr::Call {
-                                func: func_name.clone(),
+                                name: call_name.clone(),
                                 args: vec![],
                             }),
                             env: new_env,
@@ -295,9 +291,9 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     } else {
                         Err(format!(
                             "Function {:?} requires {} arguments, but got {}",
-                            func_name,
-                            args_len,
-                            args.len()
+                            call_name,
+                            args.length,
+                            call_args.len()
                         ))
                     }
                 }

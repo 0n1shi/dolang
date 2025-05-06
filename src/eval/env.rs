@@ -1,5 +1,5 @@
 use crate::eval::builtin::BUILTIN_FUNCTIONS;
-use crate::eval::value::Value;
+use crate::eval::value::{BuiltinFuncArgs, Value};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Env {
@@ -18,7 +18,10 @@ impl Env {
                 Value::BuiltinFunc {
                     name: func.name.to_string(),
                     func: func.func,
-                    args_len: func.args_len,
+                    args: BuiltinFuncArgs {
+                        length: func.args_len,
+                        curried: vec![],
+                    },
                 },
             );
         }

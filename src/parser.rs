@@ -114,21 +114,11 @@ impl Parser {
                 self.next(); // Consume '|'
 
                 let pattern = match self.current_token() {
-                    Token::Number(n) => {
-                        Pattern::Number(*n)
-                    }
-                    Token::String(s) => {
-                        Pattern::String(s.clone())
-                    }
-                    Token::True => {
-                        Pattern::Boolean(true)
-                    }
-                    Token::False => {
-                        Pattern::Boolean(false)
-                    }
-                    Token::Underscore => {
-                        Pattern::Wildcard
-                    }
+                    Token::Number(n) => Pattern::Number(*n),
+                    Token::String(s) => Pattern::String(s.clone()),
+                    Token::True => Pattern::Boolean(true),
+                    Token::False => Pattern::Boolean(false),
+                    Token::Underscore => Pattern::Wildcard,
                     _ => return Err("Expected pattern after '|'".into()),
                 };
                 self.next(); // Consume pattern
@@ -350,7 +340,7 @@ impl Parser {
                         self.next(); // Consume ')'
 
                         return Ok(Expr::Call {
-                            func: Box::new(Expr::Identifier(id.clone())),
+                            name: Box::new(Expr::Identifier(id.clone())),
                             args,
                         });
                     }

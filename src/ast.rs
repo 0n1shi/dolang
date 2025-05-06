@@ -69,7 +69,7 @@ pub enum Expr {
         index: f64,
     },
     Call {
-        func: Box<Expr>,
+        name: Box<Expr>,
         args: Vec<Expr>,
     },
     Identifier(String),

@@ -311,7 +311,7 @@ fn test_parser() {
             ],
             Ok(AST {
                 stmts: vec![Stmt::Expr(Expr::Call {
-                    func: Box::new(Expr::Identifier("print".to_string())),
+                    name: Box::new(Expr::Identifier("print".to_string())),
                     args: vec![Expr::String("Hello, World!".to_string())],
                 })],
             }),
