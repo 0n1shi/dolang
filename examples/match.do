@@ -5,4 +5,4 @@ let result = match a + b
   | 2 -> "two"
   | 3 -> "three"
   | _ -> "other"
-print result
+println(result)

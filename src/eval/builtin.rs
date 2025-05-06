@@ -5,6 +5,7 @@ pub const BUILTIN_FUNCTIONS: &[(&str, fn(Vec<Value>) -> Result<Value, String>)] 
     ("map", map),
     ("filter", filter),
     ("print", print),
+    ("println", println),
     ("append", append),
 ];
 
@@ -43,6 +44,36 @@ pub fn filter(args: Vec<Value>) -> Result<Value, String> {
 }
 
 pub fn print(args: Vec<Value>) -> Result<Value, String> {
+    for arg in args {
+        match arg {
+            Value::Number(n) => print!("{}", n),
+            Value::String(s) => print!("{}", s),
+            Value::Boolean(b) => print!("{}", b),
+            Value::List(l) => {
+                let list_str: Vec<String> = l
+                    .iter()
+                    .map(|v| match v {
+                        Value::Number(n) => n.to_string(),
+                        Value::String(s) => s.clone(),
+                        Value::Boolean(b) => b.to_string(),
+                        _ => "Unsupported type".to_string(),
+                    })
+                    .collect();
+                print!("[{}]", list_str.join(", "));
+            }
+            Value::Func { args, body, .. } => {
+                let args_str = args.join(", ");
+                print!("Function: {} -> {:?}", args_str, body);
+            }
+            Value::BuiltinFunc { name, .. } => {
+                print!("Builtin function: {}", name);
+            }
+        }
+    }
+    Ok(Value::Number(0.0)) // Return a dummy
+}
+
+pub fn println(args: Vec<Value>) -> Result<Value, String> {
     for arg in args {
         match arg {
             Value::Number(n) => println!("{}", n),
