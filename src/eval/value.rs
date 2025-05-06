@@ -8,12 +8,13 @@ pub enum Value {
     Boolean(bool),
     List(Vec<Value>),
     Func {
-        args: Vec<String>,
+        params: Vec<String>,
         body: Box<Expr>,
         env: Env,
     },
     BuiltinFunc {
         name: String,
         func: fn(Vec<Value>) -> Result<Value, String>,
+        args_len: usize,
     },
 }

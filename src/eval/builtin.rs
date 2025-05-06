@@ -1,21 +1,47 @@
 use super::eval::eval_expr;
 use super::value::Value;
 
-pub const BUILTIN_FUNCTIONS: &[(&str, fn(Vec<Value>) -> Result<Value, String>)] = &[
-    ("map", map),
-    ("filter", filter),
-    ("print", print),
-    ("println", println),
-    ("append", append),
+pub struct BuiltinFunc {
+    pub name: &'static str,
+    pub func: fn(Vec<Value>) -> Result<Value, String>,
+    pub args_len: usize,
+}
+
+pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
+    BuiltinFunc {
+        name: "map",
+        func: map,
+        args_len: 2,
+    },
+    BuiltinFunc {
+        name: "filter",
+        func: filter,
+        args_len: 2,
+    },
+    BuiltinFunc {
+        name: "print",
+        func: print,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "println",
+        func: println,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "append",
+        func: append,
+        args_len: 2,
+    },
 ];
 
 pub fn map(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
-        [Value::Func { args, body, env }, Value::List(items)] => {
+        [Value::Func { params, body, env }, Value::List(items)] => {
             let mut results = Vec::new();
             for item in items {
                 let mut new_env = env.clone();
-                new_env.set(args[0].clone(), item.clone());
+                new_env.set(params[0].clone(), item.clone());
                 let result = eval_expr(&body, &mut new_env)?;
                 results.push(result);
             }
@@ -27,11 +53,11 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
 
 pub fn filter(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
-        [Value::Func { args, body, env }, Value::List(items)] => {
+        [Value::Func { params, body, env }, Value::List(items)] => {
             let mut results = Vec::new();
             for item in items {
                 let mut new_env = env.clone();
-                new_env.set(args[0].clone(), item.clone());
+                new_env.set(params[0].clone(), item.clone());
                 let result = eval_expr(&body, &mut new_env)?;
                 if result == Value::Boolean(true) {
                     results.push(item.clone());
@@ -61,8 +87,8 @@ pub fn print(args: Vec<Value>) -> Result<Value, String> {
                     .collect();
                 print!("[{}]", list_str.join(", "));
             }
-            Value::Func { args, body, .. } => {
-                let args_str = args.join(", ");
+            Value::Func { params, body, .. } => {
+                let args_str = params.join(", ");
                 print!("Function: {} -> {:?}", args_str, body);
             }
             Value::BuiltinFunc { name, .. } => {
@@ -91,9 +117,9 @@ pub fn println(args: Vec<Value>) -> Result<Value, String> {
                     .collect();
                 println!("[{}]", list_str.join(", "));
             }
-            Value::Func { args, body, .. } => {
-                let args_str = args.join(", ");
-                println!("Function: {} -> {:?}", args_str, body);
+            Value::Func { params, body, .. } => {
+                let params_str = params.join(", ");
+                println!("Function: {} -> {:?}", params_str, body);
             }
             Value::BuiltinFunc { name, .. } => {
                 println!("Builtin function: {}", name);

@@ -12,12 +12,13 @@ impl Env {
         let mut variables = std::collections::HashMap::new();
 
         // register built-in functions
-        for (name, func) in BUILTIN_FUNCTIONS.iter() {
+        for func in BUILTIN_FUNCTIONS {
             variables.insert(
-                name.to_string(),
+                func.name.to_string(),
                 Value::BuiltinFunc {
-                    name: name.to_string(),
-                    func: *func,
+                    name: func.name.to_string(),
+                    func: func.func,
+                    args_len: func.args_len,
                 },
             );
         }

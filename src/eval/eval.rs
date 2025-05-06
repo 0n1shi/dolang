@@ -30,7 +30,7 @@ pub fn eval_stmt(stmt: &Stmt, env: &mut Env) -> Result<(), String> {
 pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
     match expr {
         Expr::Func { params, body } => Ok(Value::Func {
-            args: params.clone(),
+            params: params.clone(),
             body: body.clone(),
             env: env.clone(),
         }),
@@ -188,14 +188,19 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     Value::String(s) => Value::String(s.clone()),
                     Value::Boolean(b) => Value::Boolean(*b),
                     Value::List(l) => Value::List(l.to_vec()),
-                    Value::Func { args, body, env } => Value::Func {
-                        args: args.clone(),
+                    Value::Func { params, body, env } => Value::Func {
+                        params: params.clone(),
                         body: body.clone(),
                         env: env.clone(),
                     },
-                    Value::BuiltinFunc { name, func } => Value::BuiltinFunc {
+                    Value::BuiltinFunc {
+                        name,
+                        func,
+                        args_len,
+                    } => Value::BuiltinFunc {
                         name: name.clone(),
-                        func: *func,
+                        func: func.clone(),
+                        args_len: *args_len,
                     },
                 })
             } else {
@@ -215,35 +220,86 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 _ => Err("List access requires a list".into()),
             }
         }
-        Expr::Call { func, args } => {
-            let func_val = eval_expr(func, env)?;
+        Expr::Call {
+            func: func_name,
+            args,
+        } => {
+            let func_val = eval_expr(func_name, env)?;
             match func_val {
                 Value::Func {
-                    args: f_args,
+                    params,
                     body,
-                    env: f_env,
+                    env: func_env,
                 } => {
-                    if args.len() != f_args.len() {
-                        return Err(format!(
-                            "Function {} expects {} arguments, got {}",
-                            f_args.join(", "),
-                            f_args.len(),
+                    // normal function call
+                    if args.len() == params.len() {
+                        let mut new_env = Env::new(Some(Box::new(func_env)));
+                        for (arg, arg_name) in args.iter().zip(params) {
+                            let arg_val = eval_expr(arg, env)?;
+                            new_env.set(arg_name, arg_val);
+                        }
+                        eval_expr(&body, &mut new_env)
+                    }
+                    // currying
+                    else if params.len() > args.len() {
+                        let mut new_env = Env::new(Some(Box::new(func_env)));
+                        for (arg, arg_name) in args.iter().zip(params.iter()) {
+                            let arg_val = eval_expr(arg, env)?;
+                            new_env.set(arg_name.clone(), arg_val);
+                        }
+                        let remaining_params = params[args.len()..].to_vec();
+                        let remaining_body = body.clone();
+                        Ok(Value::Func {
+                            params: remaining_params,
+                            body: remaining_body,
+                            env: new_env,
+                        })
+                    } else {
+                        Err(format!(
+                            "Function {:?} requires {} arguments, but got {}",
+                            func_name,
+                            params.len(),
                             args.len()
-                        ));
+                        ))
                     }
-                    let mut new_env = Env::new(Some(Box::new(f_env)));
-                    for (arg, arg_name) in args.iter().zip(f_args) {
-                        let arg_val = eval_expr(arg, env)?;
-                        new_env.set(arg_name, arg_val);
-                    }
-                    eval_expr(&body, &mut new_env)
                 }
-                Value::BuiltinFunc { name: _, func } => {
-                    let mut arg_vals = Vec::new();
-                    for arg in args {
-                        arg_vals.push(eval_expr(arg, env)?);
+                Value::BuiltinFunc {
+                    name: _,
+                    func,
+                    args_len,
+                } => {
+                    // normal function call
+                    if args.len() == args_len {
+                        let mut arg_vals = Vec::new();
+                        for arg in args {
+                            arg_vals.push(eval_expr(arg, env)?);
+                        }
+                        func(arg_vals)
                     }
-                    func(arg_vals)
+                    // currying
+                    else if args_len > args.len() {
+                        let mut new_env = Env::new(Some(Box::new(env.clone())));
+                        for (arg, arg_name) in args.iter().zip(0..args_len) {
+                            let arg_val = eval_expr(arg, env)?;
+                            new_env.set(arg_name.to_string(), arg_val);
+                        }
+                        let remaining_params = (args_len - args.len()) as usize;
+                        Ok(Value::Func {
+                            params: vec!["...".to_string(); remaining_params],
+                            body: Box::new(Expr::Call {
+                                func: func_name.clone(),
+                                args: vec![],
+                            }),
+                            env: new_env,
+                        })
+                    } else {
+                        Err(format!(
+                            "Function {:?} requires {} arguments, but got {}",
+                            func_name,
+                            args_len,
+                            args.len()
+                        ))
+                    }
                 }
                 _ => Err("Function call requires a function".into()),
             }
