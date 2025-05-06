@@ -1,6 +1,6 @@
 use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
 use crate::eval::env::Env;
-use crate::eval::value::Value;
+use crate::eval::value::{BuiltinFuncArgs, Value};
 
 pub fn eval(ast: AST, env: &mut Env) -> Result<(), String> {
     for stmt in &ast.stmts {
@@ -259,14 +259,13 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                         ))
                     }
                 }
-                Value::BuiltinFunc {
-                    name: _,
-                    func,
-                    args,
-                } => {
+                Value::BuiltinFunc { name, func, args } => {
                     // normal function call
                     if call_args.len() == args.length {
                         let mut arg_vals = Vec::new();
+                        for arg in args.curried.iter() {
+                            arg_vals.push(arg.clone());
+                        }
                         for arg in call_args {
                             arg_vals.push(eval_expr(arg, env)?);
                         }
@@ -274,19 +273,18 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     }
                     // currying
                     else if args.length > call_args.len() {
-                        let mut new_env = Env::new(Some(Box::new(env.clone())));
-                        for (arg, arg_name) in call_args.iter().zip(0..args.length) {
+                        let mut new_args = args.curried.clone();
+                        for arg in call_args {
                             let arg_val = eval_expr(arg, env)?;
-                            new_env.set(arg_name.to_string(), arg_val);
+                            new_args.push(arg_val);
                         }
-                        let remaining_params = (call_args.len() - args.length) as usize;
-                        Ok(Value::Func {
-                            params: vec!["...".to_string(); remaining_params],
-                            body: Box::new(Expr::Call {
-                                name: call_name.clone(),
-                                args: vec![],
-                            }),
-                            env: new_env,
+                        Ok(Value::BuiltinFunc {
+                            name,
+                            func: func.clone(),
+                            args: BuiltinFuncArgs {
+                                length: args.length - call_args.len(),
+                                curried: new_args,
+                            },
                         })
                     } else {
                         Err(format!(
