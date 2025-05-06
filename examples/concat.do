@@ -1,4 +1,4 @@
-let template = "Hi, "
+let temp = "Hi, "
 let name = "John"
-let greeting = template + name
-println(greeting)
+let greet = temp + name
+println(greet)
