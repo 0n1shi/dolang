@@ -172,18 +172,40 @@ impl Lexer {
             }
             '"' => {
                 self.position += 1;
-                let start_pos = self.position;
+                let mut result = String::new();
 
                 while self.position < self.input.len() && self.current_char() != '"' {
+                    let c = self.current_char();
+                    if c == '\\' {
+                        // Escape sequence
+                        self.position += 1;
+                        if self.position >= self.input.len() {
+                            return Token::Invalid;
+                        }
+                        let esc = self.current_char();
+                        let escaped_char = match esc {
+                            'n' => '\n',
+                            't' => '\t',
+                            'r' => '\r',
+                            '\\' => '\\',
+                            '"' => '"',
+                            '0' => '\0',
+                            _ => {
+                                return Token::Invalid;
+                            }
+                        };
+                        result.push(escaped_char);
+                    } else {
+                        result.push(c);
+                    }
                     self.position += 1;
                 }
 
                 if self.position < self.input.len() {
-                    let string_value = self.input[start_pos..self.position].iter().collect();
                     self.position += 1;
-                    return Token::String(string_value);
+                    Token::String(result)
                 } else {
-                    return Token::Invalid; // Unterminated string
+                    Token::Invalid
                 }
             }
             _ => {
