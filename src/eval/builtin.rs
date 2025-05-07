@@ -195,7 +195,7 @@ pub fn int(args: Vec<Value>) -> Result<Value, String> {
 }
 pub fn split(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
-        [Value::String(s), Value::String(delim)] => {
+        [Value::String(delim), Value::String(s)] => {
             let parts: Vec<String> = s.split(delim).map(|s| s.to_string()).collect();
             Ok(Value::List(parts.into_iter().map(Value::String).collect()))
         }
