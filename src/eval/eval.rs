@@ -129,6 +129,24 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 },
             }
         }
+        Expr::Range { start, end } => {
+            let start_val = eval_expr(start, env)?;
+            let end_val = eval_expr(end, env)?;
+            match (start_val, end_val) {
+                (Value::Number(s), Value::Number(e)) => {
+                    if s <= e {
+                        let mut range = Vec::new();
+                        for i in s as usize..=e as usize {
+                            range.push(Value::Number(i as f64));
+                        }
+                        Ok(Value::List(range))
+                    } else {
+                        Err("Start of range must be less than or equal to end".into())
+                    }
+                }
+                _ => Err("Range requires number operands".into()),
+            }
+        }
         Expr::Term { left, op, right } => {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;
@@ -203,17 +221,19 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 Err(format!("Undefined variable: {}", expr))
             }
         }
-        Expr::ListAccess { list, index } => {
+        Expr::Index { list, index } => {
             let list_val = eval_expr(list, env)?;
-            match list_val {
-                Value::List(l) => {
-                    if *index as usize >= l.len() {
-                        Err(format!("Index out of bounds: {}", index))
+            let index_val = eval_expr(index, env)?;
+            match (list_val, index_val) {
+                (Value::List(l), Value::Number(i)) => {
+                    let idx = i as usize;
+                    if idx < l.len() {
+                        Ok(l[idx].clone())
                     } else {
-                        Ok(l[*index as usize].clone())
+                        Err(format!("Index out of bounds: {}", idx))
                     }
                 }
-                _ => Err("List access requires a list".into()),
+                _ => Err("Indexing requires a list and a number".into()),
             }
         }
         Expr::Call {

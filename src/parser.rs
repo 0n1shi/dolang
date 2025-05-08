@@ -198,7 +198,7 @@ impl Parser {
         }
     }
     fn parse_comp_expr(&mut self) -> Result<Expr, String> {
-        let left = self.parse_term_expr()?;
+        let left = self.parse_range_expr()?;
         if [
             Token::Equal,
             Token::NotEqual,
@@ -220,7 +220,7 @@ impl Parser {
             };
             self.next(); // Consume comparison operator
 
-            let right = self.parse_term_expr()?;
+            let right = self.parse_range_expr()?;
 
             Ok(Expr::Comp {
                 left: Box::new(left),
@@ -229,6 +229,21 @@ impl Parser {
             })
         } else {
             Ok(left)
+        }
+    }
+    fn parse_range_expr(&mut self) -> Result<Expr, String> {
+        let start = self.parse_term_expr()?;
+        if self.current_token() == &Token::DotDot {
+            self.next(); // Consume '..'
+
+            let end = self.parse_term_expr()?;
+
+            Ok(Expr::Range {
+                start: Box::new(start),
+                end: Box::new(end),
+            })
+        } else {
+            Ok(start)
         }
     }
     fn parse_term_expr(&mut self) -> Result<Expr, String> {
@@ -315,10 +330,30 @@ impl Parser {
                         }
                         self.next(); // Consume ']'
 
-                        return Ok(Expr::ListAccess {
+                        let mut list = Expr::Index {
                             list: Box::new(Expr::Identifier(id.clone())),
-                            index,
-                        });
+                            index: Box::new(Expr::Number(index)),
+                        };
+
+                        while self.current_token() == &Token::LeftBracket {
+                            self.next(); // Consume '['
+                            let index = match self.current_token() {
+                                Token::Number(n) => *n,
+                                _ => return Err("Expected number for list index".into()),
+                            };
+                            self.next(); // Consume number
+
+                            if self.current_token() != &Token::RightBracket {
+                                return Err("Expected ']'".into());
+                            }
+                            self.next(); // Consume ']'
+
+                            list = Expr::Index {
+                                list: Box::new(list),
+                                index: Box::new(Expr::Number(index)),
+                            };
+                        }
+                        return Ok(list);
                     }
                     // function call
                     Token::LeftParen => {

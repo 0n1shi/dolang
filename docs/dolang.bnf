@@ -1,7 +1,6 @@
 <stmt>          ::= <let_stmt>
                   | <expr_stmt>
 <let_stmt>      ::= "let" <id> "=" <expr>
-<print_stmt>    ::= "print" <expr>
 <expr_stmt>     ::= <expr>
 
 <expr>  ::= <lambda_expr>
@@ -12,7 +11,7 @@
 
 <lambda_expr>   ::= fn "_" "->" <expr>
                   | fn <params> "->" <expr>
-<args>          ::= <identifier> { "," <identifier> }
+<params>        ::= <expr> { "," <expr> }
 
 <if_expr>   ::= "if" <expr> "then" <expr> "else" <expr>
 
@@ -25,19 +24,23 @@
 <list>  ::= "[" [ <expr> { "," <expr> } ] "]"
 
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
-<comp_expr>     ::= <term_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <term_expr> }
+<comp_expr>     ::= <range_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <range_expr> }
+<range_expr>   ::= <term_expr> { ".." <term_expr> }
 <term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
 <factor_expr>   ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
-                  | <call_expr>
-                  | <index_expr>
-                  | <primary>
-<call_expr>     ::= <identifier> "(" { <expr> { "," <expr> } } ")"
-<list_access>   ::= <identifier> "[" { <expr> { "," <expr> } } "]"
+                  | <postfix_expr>
+<postfix_expr>  ::= <primary> { <postfix> }
+<postfix>   ::= <call>
+              | <index>
 
-<primary>       ::= <literal>
-                  | <identifier>
-                  | "(" <expr> ")"
+<call>  ::= "(" [ <expr> { "," <expr> } ] ")"
+<index> ::= "[" <expr> { "," <expr> } "]"
+
+<primary>   ::= <literal>
+              | <identifier>
+              | "(" <expr> ")"
+
 <identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
 <literal>       ::= <number>
                   | <string>

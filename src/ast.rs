@@ -50,6 +50,10 @@ pub enum Expr {
         op: CompOp,
         right: Box<Expr>,
     },
+    Range {
+        start: Box<Expr>,
+        end: Box<Expr>,
+    },
     Term {
         left: Box<Expr>,
         op: TermOp,
@@ -64,9 +68,9 @@ pub enum Expr {
         op: UnaryOp,
         right: Box<Expr>,
     },
-    ListAccess {
+    Index {
         list: Box<Expr>,
-        index: f64,
+        index: Box<Expr>,
     },
     Call {
         name: Box<Expr>,
