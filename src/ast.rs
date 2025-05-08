@@ -72,6 +72,11 @@ pub enum Expr {
         list: Box<Expr>,
         index: Box<Expr>,
     },
+    Slice {
+        list: Box<Expr>,
+        start: Option<Box<Expr>>,
+        end: Option<Box<Expr>>,
+    },
     Call {
         name: Box<Expr>,
         args: Vec<Expr>,

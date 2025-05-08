@@ -319,41 +319,52 @@ impl Parser {
                     Token::LeftBracket => {
                         self.next(); // Consume '['
 
-                        let index = match self.current_token() {
-                            Token::Number(n) => *n,
-                            _ => return Err("Expected number for list index".into()),
-                        };
-                        self.next(); // Consume number
+                        let mut start = None;
+                        let mut has_dots = false;
+                        let mut end = None;
 
+                        while self.current_token() != &Token::RightBracket {
+                            match self.current_token() {
+                                Token::DotDot => {
+                                    has_dots = true;
+                                    self.next(); // Consume '..'
+                                }
+                                _ => {
+                                    if has_dots {
+                                        end = Some(Box::new(
+                                            self.parse_expr()
+                                                .map_err(|err| format!("Expected expression: {}", err))?,
+                                        ));
+                                    } else {
+                                        start = Some(Box::new(
+                                            self.parse_expr()
+                                                .map_err(|err| format!("Expected expression: {}", err))?,
+                                        ));
+                                    }
+                                }
+                            }
+                        }
                         if self.current_token() != &Token::RightBracket {
                             return Err("Expected ']'".into());
                         }
                         self.next(); // Consume ']'
 
-                        let mut list = Expr::Index {
-                            list: Box::new(Expr::Identifier(id.clone())),
-                            index: Box::new(Expr::Number(index)),
-                        };
-
-                        while self.current_token() == &Token::LeftBracket {
-                            self.next(); // Consume '['
-                            let index = match self.current_token() {
-                                Token::Number(n) => *n,
-                                _ => return Err("Expected number for list index".into()),
-                            };
-                            self.next(); // Consume number
-
-                            if self.current_token() != &Token::RightBracket {
-                                return Err("Expected ']'".into());
+                        let list_access = if has_dots {
+                            if start.is_none() && end.is_none() {
+                                return Err("Expected start or end for slice".into());
                             }
-                            self.next(); // Consume ']'
-
-                            list = Expr::Index {
-                                list: Box::new(list),
-                                index: Box::new(Expr::Number(index)),
-                            };
-                        }
-                        return Ok(list);
+                            Expr::Slice {
+                                list: Box::new(Expr::Identifier(id.clone())),
+                                start,
+                                end,
+                            }
+                        } else {
+                            Expr::Index {
+                                list: Box::new(Expr::Identifier(id.clone())),
+                                index: start.ok_or_else(|| "Expected index for list access")?,
+                            }
+                        };
+                        return Ok(list_access);
                     }
                     // function call
                     Token::LeftParen => {

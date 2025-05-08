@@ -41,6 +41,7 @@ fn run(filename: &str) {
         }
     };
 
+        println!("Parsed AST: {:?}", ast);
     eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
         eprintln!("Error evaluating input: {}", e);
     });
@@ -89,6 +90,7 @@ fn repl() {
             }
         };
 
+        println!("Parsed AST: {:?}", ast);
         eval(ast, &mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });

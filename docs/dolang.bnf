@@ -31,11 +31,14 @@
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
                   | <postfix_expr>
 <postfix_expr>  ::= <primary> { <postfix> }
+
 <postfix>   ::= <call>
               | <index>
+              | <slice>
 
 <call>  ::= "(" [ <expr> { "," <expr> } ] ")"
-<index> ::= "[" <expr> { "," <expr> } "]"
+<index> ::= "[" <expr> "]"
+<slice> ::= "[" [<expr>] ".." [<expr>] "]"
 
 <primary>   ::= <literal>
               | <identifier>
