@@ -175,6 +175,22 @@ impl Parser {
             return self.parse_logic_expr();
         }
     }
+    fn parse_pipe_expr(&mut self) -> Result<Expr, String> {
+        let mut expr = self.parse_logic_expr()?;
+
+        while self.current_token() == &Token::ForwardPipe {
+            self.next(); // Consume '|>'
+
+            let right = self.parse_logic_expr()?;
+
+            expr = Expr::Pipe {
+                left: Box::new(expr),
+                right: Box::new(right),
+            };
+        }
+
+        Ok(expr)
+    }
     fn parse_logic_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_comp_expr()?;
 
@@ -331,15 +347,14 @@ impl Parser {
                                 }
                                 _ => {
                                     if has_dots {
-                                        end = Some(Box::new(
-                                            self.parse_expr()
-                                                .map_err(|err| format!("Expected expression: {}", err))?,
-                                        ));
+                                        end = Some(Box::new(self.parse_expr().map_err(|err| {
+                                            format!("Expected expression: {}", err)
+                                        })?));
                                     } else {
-                                        start = Some(Box::new(
-                                            self.parse_expr()
-                                                .map_err(|err| format!("Expected expression: {}", err))?,
-                                        ));
+                                        start =
+                                            Some(Box::new(self.parse_expr().map_err(|err| {
+                                                format!("Expected expression: {}", err)
+                                            })?));
                                     }
                                 }
                             }

@@ -40,6 +40,10 @@ pub enum Expr {
         cases: Vec<Case>,
     },
     List(Vec<Expr>),
+    Pipe {
+        left: Box<Expr>,
+        right: Box<Expr>,
+    },
     Logic {
         left: Box<Expr>,
         op: LogicOp,
