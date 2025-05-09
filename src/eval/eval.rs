@@ -264,7 +264,17 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 (Value::String(s), Value::List(i)) => {
                     let start = i[0].clone();
                     let end = i[i.len() - 1].clone();
-                    Ok(Value::String(s[start..end].to_string()))
+                    match (start, end) {
+                        (Value::Number(start), Value::Number(end)) => {
+                            let start = start as usize;
+                            let end = end as usize;
+                            if start > end || end > s.len() {
+                                return Err(format!("Index out of bounds: {}..{}", start, end));
+                            }
+                            Ok(Value::String(s[start..end].to_string()))
+                        }
+                        _ => return Err("Indexing requires a number".into()),
+                    }
                 }
                 _ => Err("Indexing requires a list and a number".into()),
             }

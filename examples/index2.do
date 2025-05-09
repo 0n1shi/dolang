@@ -1,3 +1,5 @@
-let a = [1, 2, 3, 4, 5]
-let i = 2
-println(a[i..3])
+let msg = "Hello, world!"
+println(msg)
+let s = 0
+let e = 5
+println(msg[s..e])
