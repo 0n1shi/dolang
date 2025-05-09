@@ -225,6 +225,7 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
             let list_val = eval_expr(list, env)?;
             let index_val = eval_expr(index, env)?;
             match (list_val, index_val) {
+                // Indexing list
                 (Value::List(l), Value::Number(i)) => {
                     let idx = i as usize;
                     if idx < l.len() {
@@ -232,6 +233,38 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     } else {
                         Err(format!("Index out of bounds: {}", idx))
                     }
+                }
+                (Value::List(l), Value::List(i)) => {
+                    let mut values = Vec::new();
+                    let idx = i
+                        .iter()
+                        .filter_map(|v| match v {
+                            Value::Number(n) => Some(*n as usize),
+                            _ => None,
+                        })
+                        .collect::<Vec<_>>();
+                    for idx in idx {
+                        if idx < l.len() {
+                            values.push(l[idx].clone());
+                        } else {
+                            return Err(format!("Index out of bounds: {}", idx));
+                        }
+                    }
+                    Ok(Value::List(values))
+                }
+                // Indexing string
+                (Value::String(s), Value::Number(i)) => {
+                    let idx = i as usize;
+                    if idx < s.len() {
+                        Ok(Value::String(s[idx..idx + 1].to_string()))
+                    } else {
+                        Err(format!("Index out of bounds: {}", idx))
+                    }
+                }
+                (Value::String(s), Value::List(i)) => {
+                    let start = i[0].clone();
+                    let end = i[i.len() - 1].clone();
+                    Ok(Value::String(s[start..end].to_string()))
                 }
                 _ => Err("Indexing requires a list and a number".into()),
             }
