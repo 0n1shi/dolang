@@ -77,7 +77,7 @@ fn run_file(filename: &str, debug: bool) {
         println!("Tokens: {:?}", tokens);
     }
 
-    let mut parser = parser::Parser::new(tokens);
+    let mut parser = parser::Parser::new(tokens, debug);
     let ast = match parser.parse() {
         Ok(ast) => ast,
         Err(e) => {
@@ -131,7 +131,7 @@ fn run_repl(debug: bool) {
             println!("Tokens: {:?}", tokens);
         }
 
-        let mut parser = parser::Parser::new(tokens);
+        let mut parser = parser::Parser::new(tokens, debug);
         let ast = match parser.parse() {
             Ok(ast) => ast,
             Err(e) => {

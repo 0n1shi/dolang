@@ -145,7 +145,10 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
             }
             Ok(Value::List(results))
         }
-        _ => Err("map: expected a function and a list".to_string()),
+        _ => Err(format!(
+            "map: expected a function and a list, got {:?}",
+            args
+        )),
     }
 }
 

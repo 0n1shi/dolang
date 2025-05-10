@@ -6,7 +6,6 @@
 <expr>  ::= <lambda_expr>
           | <if_expr>
           | <match_expr>
-          | <list>
           | <pipe_expr>
 
 <lambda_expr>   ::= fn "_" "->" <expr>
@@ -41,8 +40,9 @@
 <index> ::= "[" <expr> "]"
 <slice> ::= "[" [<expr>] ".." [<expr>] "]"
 
-<primary>   ::= <literal>
-              | <identifier>
+<primary>   ::= <identifier>
+              | <literal>
+              | <list>
               | "(" <expr> ")"
 
 <identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
@@ -50,3 +50,4 @@
                   | <string>
                   | "true"
                   | "false"
+<list>          ::= "[" [ <expr> { "," <expr> } ] "]"

@@ -4,13 +4,16 @@ use crate::token::Token;
 pub struct Parser {
     tokens: Vec<Token>,
     position: usize,
+
+    debug: bool,
 }
 
 impl Parser {
-    pub fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>, debug: bool) -> Self {
         Parser {
             tokens,
             position: 0,
+            debug,
         }
     }
 
@@ -21,6 +24,9 @@ impl Parser {
         self.tokens.get(self.position).unwrap_or(&Token::EOF)
     }
     fn next(&mut self) {
+        if self.debug {
+            println!("Consume token: {:?}", self.current_token());
+        }
         self.position += 1;
     }
 
@@ -49,15 +55,18 @@ impl Parser {
     }
     fn parse_let_stmt(&mut self) -> Result<Stmt, String> {
         self.next(); // Consume 'let'
+                     //
         let name = match self.current_token() {
             Token::Identifier(id) => id.clone(),
             _ => return Err("Expected identifier after 'let'".into()),
         };
         self.next(); // Consume identifier
+
         if self.current_token() != &Token::Assign {
             return Err("Expected '=' after identifier".into());
         }
         self.next(); // Consume '='
+
         let val = self.parse_expr()?;
         Ok(Stmt::Let { name, val })
     }
@@ -66,24 +75,25 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        if self.current_token() == &Token::LeftBracket {
-            self.next(); // Consume '['
-            let mut elements = Vec::new();
-            while self.current_token() != &Token::RightBracket {
-                let expr = self.parse_expr()?;
-                elements.push(expr);
-                if self.current_token() == &Token::Comma {
-                    self.next(); // Consume ','
-                } else {
-                    break;
-                }
-            }
-            if self.current_token() != &Token::RightBracket {
-                return Err("Expected ']'".into());
-            }
-            self.next(); // Consume ']'
-            return Ok(Expr::List(elements));
-        } else if self.current_token() == &Token::If {
+        // if self.current_token() == &Token::LeftBracket {
+        //     self.next(); // Consume '['
+        //     let mut elements = Vec::new();
+        //     while self.current_token() != &Token::RightBracket {
+        //         let expr = self.parse_expr()?;
+        //         elements.push(expr);
+        //         if self.current_token() == &Token::Comma {
+        //             self.next(); // Consume ','
+        //         } else {
+        //             break;
+        //         }
+        //     }
+        //     if self.current_token() != &Token::RightBracket {
+        //         return Err("Expected ']'".into());
+        //     }
+        //     self.next(); // Consume ']'
+        //     return Ok(Expr::List(elements));
+        // }
+        if self.current_token() == &Token::If {
             self.next(); // Consume 'if'
             let cond = self.parse_expr()?;
 
@@ -437,6 +447,26 @@ impl Parser {
                 self.next(); // Consume ')'
 
                 Ok(expr)
+            }
+            Token::LeftBracket => {
+                self.next(); // Consume '['
+                let mut elements = Vec::new();
+                while self.current_token() != &Token::RightBracket {
+                    let expr = self.parse_expr()?;
+                    elements.push(expr);
+                    if self.current_token() == &Token::Comma {
+                        self.next(); // Consume ','
+                    } else {
+                        break;
+                    }
+                }
+
+                if self.current_token() != &Token::RightBracket {
+                    return Err("Expected ']'".into());
+                }
+                self.next(); // Consume ']'
+
+                Ok(Expr::List(elements))
             }
             _ => Err(format!(
                 "Expected identifier, number, string, true, false, or '(' but found: {:?}",
