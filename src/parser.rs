@@ -181,7 +181,7 @@ impl Parser {
         while self.current_token() == &Token::ForwardPipe {
             self.next(); // Consume '|>'
 
-            let right = self.parse_logic_expr()?;
+            let right = self.parse_expr()?;
 
             expr = Expr::Pipe {
                 left: Box::new(expr),
@@ -438,7 +438,10 @@ impl Parser {
 
                 Ok(expr)
             }
-            _ => Err("Expected identifier, number, string, boolean, or '('".into()),
+            _ => Err(format!(
+                "Expected identifier, number, string, true, false, or '(' but found: {:?}",
+                self.current_token()
+            )),
         }
     }
 }
