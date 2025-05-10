@@ -172,7 +172,7 @@ impl Parser {
                 body: Box::new(body),
             });
         } else {
-            return self.parse_logic_expr();
+            return self.parse_pipe_expr();
         }
     }
     fn parse_pipe_expr(&mut self) -> Result<Expr, String> {

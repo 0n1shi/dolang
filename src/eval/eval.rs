@@ -95,6 +95,31 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 },
             }
         }
+        Expr::Pipe { left, right } => {
+            let left_val = eval_expr(left, env)?;
+            let right_val = eval_expr(right, env)?;
+
+            match right_val {
+                Value::Func { params, body, env } => {
+                    let mut new_env = Env::new(Some(Box::new(env.clone())));
+                    new_env.set(params[0].clone(), left_val);
+                    eval_expr(&body, &mut new_env)
+                }
+                Value::BuiltinFunc {
+                    name: _,
+                    func,
+                    args,
+                } => {
+                    let mut arg_vals = Vec::new();
+                    for arg in args.curried.iter() {
+                        arg_vals.push(arg.clone());
+                    }
+                    arg_vals.push(left_val);
+                    func(arg_vals)
+                }
+                _ => Err("Pipe requires a function on the right".into()),
+            }
+        }
         Expr::Comp { left, op, right } => {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;

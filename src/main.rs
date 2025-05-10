@@ -7,20 +7,62 @@ const VERSION: &str = "0.1.0";
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() > 1 {
-        match args[1].as_str() {
-            "i" => repl(),
-            "h" | "help" => help(),
-            "v" | "version" => version(),
-            _ => run(&args[1]),
+
+    let mut debug = false;
+    let mut file_name = String::new();
+    let mut repl = false;
+    let mut help = false;
+    let mut version = false;
+
+    for arg in args.iter().skip(1) {
+        match arg.as_str() {
+            "i" => {
+                repl = true;
+            }
+            "h" | "help" => {
+                help = true;
+            }
+            "v" | "version" => {
+                version = true;
+            }
+            "-d" | "--debug" => {
+                debug = true;
+            }
+            _ => {
+                file_name = args[1].clone();
+            }
         }
-    } else {
-        println!("No arguments provided. Starting REPL...");
-        repl(); // Start the REPL if no arguments are provided
     }
+
+    if debug {
+        println!("Debug mode enabled");
+    }
+
+    if help {
+        show_help();
+        return;
+    }
+    if version {
+        show_version();
+        return;
+    }
+    if repl {
+        run_repl(debug);
+        return;
+    }
+
+    if file_name.is_empty() {
+        eprintln!("No input file provided. Use 'i' for REPL or 'h' for help.");
+        return;
+    }
+    if !file_name.ends_with(".do") {
+        eprintln!("Invalid file extension. Please use a .dolang file.");
+        return;
+    }
+    run_file(&file_name, debug);
 }
 
-fn run(filename: &str) {
+fn run_file(filename: &str, debug: bool) {
     let source = std::fs::read_to_string(filename).expect("Failed to read file");
     let mut lexer = lexer::Lexer::new(&source);
     let mut tokens = Vec::new();
@@ -31,6 +73,9 @@ fn run(filename: &str) {
         }
         tokens.push(token);
     }
+    if debug {
+        println!("Tokens: {:?}", tokens);
+    }
 
     let mut parser = parser::Parser::new(tokens);
     let ast = match parser.parse() {
@@ -40,14 +85,16 @@ fn run(filename: &str) {
             return;
         }
     };
-
+    if debug {
         println!("Parsed AST: {:?}", ast);
+    }
+
     eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
         eprintln!("Error evaluating input: {}", e);
     });
 }
 
-fn repl() {
+fn run_repl(debug: bool) {
     println!("Welcome to Dolang :)");
     let mut env = Env::new(None);
 
@@ -80,6 +127,9 @@ fn repl() {
             }
             tokens.push(token);
         }
+        if debug {
+            println!("Tokens: {:?}", tokens);
+        }
 
         let mut parser = parser::Parser::new(tokens);
         let ast = match parser.parse() {
@@ -89,6 +139,9 @@ fn repl() {
                 continue; // Skip to the next iteration on error
             }
         };
+        if debug {
+            println!("Parsed AST: {:?}", ast);
+        }
 
         println!("Parsed AST: {:?}", ast);
         eval(ast, &mut env).unwrap_or_else(|e| {
@@ -97,7 +150,7 @@ fn repl() {
     }
 }
 
-fn help() {
+fn show_help() {
     println!("Dolang - A simple programming language");
     println!("Usage:");
     println!("  <filename>: Run a Dolang script");
@@ -106,6 +159,6 @@ fn help() {
     println!("  v, version: Show the version of Dolang");
 }
 
-fn version() {
+fn show_version() {
     println!("version {}", VERSION);
 }
