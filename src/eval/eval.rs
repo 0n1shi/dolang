@@ -81,20 +81,6 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
             }
             Ok(Value::List(values))
         }
-        Expr::Logic { left, op, right } => {
-            let left_val = eval_expr(left, env)?;
-            let right_val = eval_expr(right, env)?;
-            match op {
-                LogicOp::And => match (left_val, right_val) {
-                    (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l && r)),
-                    _ => Err("Logical AND requires boolean operands".into()),
-                },
-                LogicOp::Or => match (left_val, right_val) {
-                    (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l || r)),
-                    _ => Err("Logical OR requires boolean operands".into()),
-                },
-            }
-        }
         Expr::Pipe { left, right } => {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;
@@ -118,6 +104,20 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     func(arg_vals)
                 }
                 _ => Err("Pipe requires a function on the right".into()),
+            }
+        }
+        Expr::Logic { left, op, right } => {
+            let left_val = eval_expr(left, env)?;
+            let right_val = eval_expr(right, env)?;
+            match op {
+                LogicOp::And => match (left_val, right_val) {
+                    (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l && r)),
+                    _ => Err("Logical AND requires boolean operands".into()),
+                },
+                LogicOp::Or => match (left_val, right_val) {
+                    (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l || r)),
+                    _ => Err("Logical OR requires boolean operands".into()),
+                },
             }
         }
         Expr::Comp { left, op, right } => {

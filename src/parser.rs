@@ -4,16 +4,13 @@ use crate::token::Token;
 pub struct Parser {
     tokens: Vec<Token>,
     position: usize,
-
-    debug: bool,
 }
 
 impl Parser {
-    pub fn new(tokens: Vec<Token>, debug: bool) -> Self {
+    pub fn new(tokens: Vec<Token>) -> Parser {
         Parser {
             tokens,
             position: 0,
-            debug,
         }
     }
 
@@ -24,9 +21,6 @@ impl Parser {
         self.tokens.get(self.position).unwrap_or(&Token::EOF)
     }
     fn next(&mut self) {
-        if self.debug {
-            println!("Consume token: {:?}", self.current_token());
-        }
         self.position += 1;
     }
 
@@ -75,24 +69,6 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        // if self.current_token() == &Token::LeftBracket {
-        //     self.next(); // Consume '['
-        //     let mut elements = Vec::new();
-        //     while self.current_token() != &Token::RightBracket {
-        //         let expr = self.parse_expr()?;
-        //         elements.push(expr);
-        //         if self.current_token() == &Token::Comma {
-        //             self.next(); // Consume ','
-        //         } else {
-        //             break;
-        //         }
-        //     }
-        //     if self.current_token() != &Token::RightBracket {
-        //         return Err("Expected ']'".into());
-        //     }
-        //     self.next(); // Consume ']'
-        //     return Ok(Expr::List(elements));
-        // }
         if self.current_token() == &Token::If {
             self.next(); // Consume 'if'
             let cond = self.parse_expr()?;
@@ -191,7 +167,7 @@ impl Parser {
         while self.current_token() == &Token::ForwardPipe {
             self.next(); // Consume '|>'
 
-            let right = self.parse_expr()?;
+            let right = self.parse_logic_expr()?;
 
             expr = Expr::Pipe {
                 left: Box::new(expr),

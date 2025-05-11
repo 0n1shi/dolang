@@ -1,3 +1,5 @@
+use dolang::debugger::ast::print_ast;
+use dolang::debugger::token::print_tokens;
 use dolang::eval::env::Env;
 use dolang::eval::eval::eval;
 use dolang::{lexer, parser, token};
@@ -35,7 +37,7 @@ fn main() {
     }
 
     if debug {
-        println!("Debug mode enabled");
+        println!("[+] Debug mode enabled");
     }
 
     if help {
@@ -52,18 +54,18 @@ fn main() {
     }
 
     if file_name.is_empty() {
-        eprintln!("No input file provided. Use 'i' for REPL or 'h' for help.");
+        eprintln!("[!] No input file provided. Use 'i' for REPL or 'h' for help.");
         return;
     }
     if !file_name.ends_with(".do") {
-        eprintln!("Invalid file extension. Please use a .dolang file.");
+        eprintln!("[!] Invalid file extension. Please use a .dolang file.");
         return;
     }
     run_file(&file_name, debug);
 }
 
 fn run_file(filename: &str, debug: bool) {
-    let source = std::fs::read_to_string(filename).expect("Failed to read file");
+    let source = std::fs::read_to_string(filename).expect("[!] Failed to read file");
     let mut lexer = lexer::Lexer::new(&source);
     let mut tokens = Vec::new();
     loop {
@@ -74,28 +76,28 @@ fn run_file(filename: &str, debug: bool) {
         tokens.push(token);
     }
     if debug {
-        println!("Tokens: {:?}", tokens);
+        print_tokens(&tokens);
     }
 
-    let mut parser = parser::Parser::new(tokens, debug);
+    let mut parser = parser::Parser::new(tokens);
     let ast = match parser.parse() {
         Ok(ast) => ast,
         Err(e) => {
-            eprintln!("Error parsing input: {}", e);
+            eprintln!("[!] Error parsing input: {}", e);
             return;
         }
     };
     if debug {
-        println!("AST: {:?}", ast);
+        print_ast(&ast);
     }
 
     eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
-        eprintln!("Error evaluating input: {}", e);
+        eprintln!("[!] Error evaluating input: {}", e);
     });
 }
 
 fn run_repl(debug: bool) {
-    println!("Welcome to Dolang :)");
+    println!("[*] Welcome to Dolang :)");
     let mut env = Env::new(None);
 
     loop {
@@ -131,7 +133,7 @@ fn run_repl(debug: bool) {
             println!("Tokens: {:?}", tokens);
         }
 
-        let mut parser = parser::Parser::new(tokens, debug);
+        let mut parser = parser::Parser::new(tokens);
         let ast = match parser.parse() {
             Ok(ast) => ast,
             Err(e) => {
