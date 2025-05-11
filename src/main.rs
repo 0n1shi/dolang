@@ -86,7 +86,7 @@ fn run_file(filename: &str, debug: bool) {
         }
     };
     if debug {
-        println!("Parsed AST: {:?}", ast);
+        println!("AST: {:?}", ast);
     }
 
     eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
