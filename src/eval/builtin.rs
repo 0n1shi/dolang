@@ -58,66 +58,49 @@ pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
         func: str,
         args_len: 1,
     },
+    // etc
+    BuiltinFunc {
+        name: "len",
+        func: len,
+        args_len: 1,
+    },
 ];
+
+fn format_value(value: &Value) -> String {
+    match value {
+        Value::Number(n) => n.to_string(),
+        Value::String(s) => s.clone(),
+        Value::Boolean(b) => b.to_string(),
+        Value::List(l) => {
+            let items: Vec<String> = l.iter().map(format_value).collect();
+            format!("[{}]", items.join(", "))
+        }
+        Value::Func {
+            params, body: _, ..
+        } => {
+            let params_str = params.join(", ");
+            format!("Function: {}", params_str)
+        }
+        Value::BuiltinFunc { name, .. } => format!("Builtin function: {}", name),
+    }
+}
 
 // IO
 pub fn print(args: Vec<Value>) -> Result<Value, String> {
-    for arg in args {
-        match arg {
-            Value::Number(n) => print!("{}", n),
-            Value::String(s) => print!("{}", s),
-            Value::Boolean(b) => print!("{}", b),
-            Value::List(l) => {
-                let list_str: Vec<String> = l
-                    .iter()
-                    .map(|v| match v {
-                        Value::Number(n) => n.to_string(),
-                        Value::String(s) => s.clone(),
-                        Value::Boolean(b) => b.to_string(),
-                        _ => "Unsupported type".to_string(),
-                    })
-                    .collect();
-                print!("[{}]", list_str.join(", "));
-            }
-            Value::Func { params, body, .. } => {
-                let args_str = params.join(", ");
-                print!("Function: {} -> {:?}", args_str, body);
-            }
-            Value::BuiltinFunc { name, .. } => {
-                print!("Builtin function: {}", name);
-            }
-        }
+    if args.len() != 1 {
+        return Err("print: expected one argument".to_string());
     }
+    let arg = &args[0];
+    print!("{}", format_value(arg));
     Ok(Value::Number(0.0)) // Return a dummy
 }
 
 pub fn println(args: Vec<Value>) -> Result<Value, String> {
-    for arg in args {
-        match arg {
-            Value::Number(n) => println!("{}", n),
-            Value::String(s) => println!("{}", s),
-            Value::Boolean(b) => println!("{}", b),
-            Value::List(l) => {
-                let list_str: Vec<String> = l
-                    .iter()
-                    .map(|v| match v {
-                        Value::Number(n) => n.to_string(),
-                        Value::String(s) => s.clone(),
-                        Value::Boolean(b) => b.to_string(),
-                        _ => "Unsupported type".to_string(),
-                    })
-                    .collect();
-                println!("[{}]", list_str.join(", "));
-            }
-            Value::Func { params, body, .. } => {
-                let params_str = params.join(", ");
-                println!("Function: {} -> {:?}", params_str, body);
-            }
-            Value::BuiltinFunc { name, .. } => {
-                println!("Builtin function: {}", name);
-            }
-        }
+    if args.len() != 1 {
+        return Err("println: expected one argument".to_string());
     }
+    let arg = &args[0];
+    println!("{}", format_value(arg));
     Ok(Value::Number(0.0)) // Return a dummy
 }
 
@@ -211,5 +194,13 @@ pub fn str(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
         [Value::Number(n)] => Ok(Value::String(n.to_string())),
         _ => Err("str: expected a number".to_string()),
+    }
+}
+// etc
+pub fn len(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => Ok(Value::Number(l.len() as f64)),
+        [Value::String(s)] => Ok(Value::Number(s.len() as f64)),
+        _ => Err("len: expected a list or string".to_string()),
     }
 }

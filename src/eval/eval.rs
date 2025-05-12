@@ -84,7 +84,6 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
         Expr::Pipe { left, right } => {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;
-
             match right_val {
                 Value::Func { params, body, env } => {
                     let mut new_env = Env::new(Some(Box::new(env.clone())));
