@@ -333,12 +333,12 @@ impl Parser {
                                 }
                                 _ => {
                                     if has_dots {
-                                        end = Some(Box::new(self.parse_expr().map_err(|err| {
+                                        end = Some(Box::new(self.parse_primary_expr().map_err(|err| {
                                             format!("Expected expression: {}", err)
                                         })?));
                                     } else {
                                         start =
-                                            Some(Box::new(self.parse_expr().map_err(|err| {
+                                            Some(Box::new(self.parse_primary_expr().map_err(|err| {
                                                 format!("Expected expression: {}", err)
                                             })?));
                                     }
