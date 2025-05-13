@@ -170,6 +170,13 @@ impl Lexer {
                     Token::Pipe
                 }
             }
+            '#' => {
+                // Skip comments
+                while self.position < self.input.len() && self.current_char() != '\n' {
+                    self.position += 1;
+                }
+                return self.next_token();
+            }
             '"' => {
                 self.position += 1;
                 let mut result = String::new();
