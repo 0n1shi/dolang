@@ -57,8 +57,8 @@ pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
         args_len: 1,
     },
     BuiltinFunc {
-        name: "rest",
-        func: rest,
+        name: "tail",
+        func: tail,
         args_len: 1,
     },
     BuiltinFunc {
@@ -234,7 +234,7 @@ pub fn third(args: Vec<Value>) -> Result<Value, String> {
         _ => Err("third: expected a list".to_string()),
     }
 }
-pub fn rest(args: Vec<Value>) -> Result<Value, String> {
+pub fn tail(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
         [Value::List(l)] => {
             if l.len() > 1 {
