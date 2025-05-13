@@ -41,6 +41,31 @@ pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
         func: append,
         args_len: 2,
     },
+    BuiltinFunc {
+        name: "first",
+        func: first,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "second",
+        func: second,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "third",
+        func: third,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "rest",
+        func: rest,
+        args_len: 1,
+    },
+    BuiltinFunc {
+        name: "last",
+        func: last,
+        args_len: 1,
+    },
     // String
     BuiltinFunc {
         name: "int",
@@ -133,6 +158,14 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
             }
             Ok(Value::List(results))
         }
+        [Value::BuiltinFunc { name: _, func, .. }, Value::List(items)] => {
+            let mut results = Vec::new();
+            for item in items {
+                let result = func(vec![item.clone()])?;
+                results.push(result);
+            }
+            Ok(Value::List(results))
+        }
         _ => Err(format!(
             "map: expected a function and a list, got {:?}",
             args
@@ -148,6 +181,16 @@ pub fn filter(args: Vec<Value>) -> Result<Value, String> {
                 let mut new_env = env.clone();
                 new_env.set(params[0].clone(), item.clone());
                 let result = eval_expr(&body, &mut new_env)?;
+                if result == Value::Boolean(true) {
+                    results.push(item.clone());
+                }
+            }
+            Ok(Value::List(results))
+        }
+        [Value::BuiltinFunc { name: _, func, .. }, Value::List(items)] => {
+            let mut results = Vec::new();
+            for item in items {
+                let result = func(vec![item.clone()])?;
                 if result == Value::Boolean(true) {
                     results.push(item.clone());
                 }
@@ -171,6 +214,42 @@ pub fn append(args: Vec<Value>) -> Result<Value, String> {
             Ok(Value::List(new_list))
         }
         _ => Err("append: expected two lists".to_string()),
+    }
+}
+pub fn first(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => l.get(0).cloned().ok_or("first: list is empty".to_string()),
+        _ => Err("first: expected a list".to_string()),
+    }
+}
+pub fn second(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => l.get(1).cloned().ok_or("second: list is empty".to_string()),
+        _ => Err("second: expected a list".to_string()),
+    }
+}
+pub fn third(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => l.get(2).cloned().ok_or("third: list is empty".to_string()),
+        _ => Err("third: expected a list".to_string()),
+    }
+}
+pub fn rest(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => {
+            if l.len() > 1 {
+                Ok(Value::List(l[1..].to_vec()))
+            } else {
+                Ok(Value::List(vec![]))
+            }
+        }
+        _ => Err("rest: expected a list".to_string()),
+    }
+}
+pub fn last(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => l.last().cloned().ok_or("last: list is empty".to_string()),
+        _ => Err("last: expected a list".to_string()),
     }
 }
 
