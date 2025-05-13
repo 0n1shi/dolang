@@ -30,17 +30,20 @@ syntax match dolangNumber /\v-?\d+(\.\d+)?/
 syntax region dolangString start=/"/ end=/"/ contains=dolangEscape
 syntax match dolangEscape /\\./
 
-" Comments (if you plan to support them)
+" Comments (if supported)
 " syntax match dolangComment /#.*$/
 
-" Brackets
+" Brackets, commas, dots
 syntax match dolangBracket /[\[\]{}()]/
 syntax match dolangComma /,/
 syntax match dolangDot /\./
 
-" Highlighting links
-highlight link dolangKeyword Keyword
-highlight link dolangBuiltIn Keyword
+" Comments
+syntax match dolangComment /#.*$/
+
+" Highlight groups (color diversity)
+highlight link dolangKeyword Statement
+highlight link dolangBuiltIn Function
 highlight link dolangBoolean Boolean
 highlight link dolangOperator Operator
 highlight link dolangPipeOperator Special
@@ -51,6 +54,6 @@ highlight link dolangEscape SpecialChar
 highlight link dolangBracket Delimiter
 highlight link dolangComma Delimiter
 highlight link dolangDot Delimiter
-" highlight link dolangComment Comment
+highlight link dolangComment Comment
 
 let b:current_syntax = "dolang"
