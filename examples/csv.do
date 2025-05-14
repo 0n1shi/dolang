@@ -6,7 +6,7 @@ let data = read_file("examples/users.csv")
 let rows =
   split("\n", data)
   |> filter(not_empty)
-  |> map(fn row -> split(",", row))
+  |> map(split(","))
 
 let ids = tail(rows) |> map(first)
 let names = tail(rows) |> map(second)

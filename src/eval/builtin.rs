@@ -158,10 +158,16 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
             }
             Ok(Value::List(results))
         }
-        [Value::BuiltinFunc { name: _, func, .. }, Value::List(items)] => {
+        [Value::BuiltinFunc {
+            name: _,
+            func,
+            args,
+        }, Value::List(items)] => {
             let mut results = Vec::new();
             for item in items {
-                let result = func(vec![item.clone()])?;
+                let mut args = args.curried.clone();
+                args.push(item.clone());
+                let result = func(args)?;
                 results.push(result);
             }
             Ok(Value::List(results))
@@ -187,10 +193,16 @@ pub fn filter(args: Vec<Value>) -> Result<Value, String> {
             }
             Ok(Value::List(results))
         }
-        [Value::BuiltinFunc { name: _, func, .. }, Value::List(items)] => {
+        [Value::BuiltinFunc {
+            name: _,
+            func,
+            args,
+        }, Value::List(items)] => {
             let mut results = Vec::new();
             for item in items {
-                let result = func(vec![item.clone()])?;
+                let mut args = args.curried.clone();
+                args.push(item.clone());
+                let result = func(args)?;
                 if result == Value::Boolean(true) {
                     results.push(item.clone());
                 }
