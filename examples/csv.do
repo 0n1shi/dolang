@@ -13,4 +13,3 @@ let names = tail(rows) |> map(second)
 
 println(ids)
 println(names)
-println("Hello world !")
