@@ -1,2 +1,2 @@
-let a = 1..100
-println(a[90..])
+let a = 1..10
+println(a)
