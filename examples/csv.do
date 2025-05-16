@@ -4,12 +4,14 @@ let data = read_file("examples/users.csv")
 
 # convert CSV data to a list of lists
 let rows =
-  split("\n", data)
+  data
+  |> split("\n")
   |> filter(not_empty)
   |> map(split(","))
+  |> tail # remove header
 
-let ids = tail(rows) |> map(first)
-let names = tail(rows) |> map(second)
+let ids = rows |> map(first)
+let names = rows |> map(second)
 
 println(ids)
 println(names)
