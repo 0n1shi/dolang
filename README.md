@@ -1,5 +1,7 @@
 # Dolang
 
+🚧 THIS PROJECT IS STILL EXPERIMENTAL AND UNDER DEVELOPMENT 🚧
+
 ## 🧭 Core Philosophy
 
 > “Learn how to think, not just how to write” — a functional language with simple and consistent syntax to support that goal.
