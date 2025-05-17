@@ -31,6 +31,7 @@
 <unary_expr>    ::= ( "-" | "not") <unary_expr>
                   | <postfix_expr>
 <postfix_expr>  ::= <primary> { <postfix> }
+                  | <compose>
 
 <postfix>   ::= <call>
               | <index>
@@ -51,3 +52,4 @@
                   | "true"
                   | "false"
 <list>          ::= "[" [ <expr> { "," <expr> } ] "]"
+<compose>       ::= <identifier> <identifier>+

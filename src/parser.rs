@@ -316,7 +316,16 @@ impl Parser {
             Token::Identifier(id) => {
                 self.next(); // Consume identifier
 
-                match self.current_token() {
+                let next_token = self.current_token().clone();
+                match next_token {
+                    // compose
+                    Token::Identifier(id2) => {
+                        self.next(); // Consume identifier
+                        return Ok(Expr::Compose {
+                            left: Box::new(Expr::Identifier(id.clone())),
+                            right: Box::new(Expr::Identifier(id2.clone())),
+                        });
+                    }
                     // list access
                     Token::LeftBracket => {
                         self.next(); // Consume '['
@@ -333,14 +342,13 @@ impl Parser {
                                 }
                                 _ => {
                                     if has_dots {
-                                        end = Some(Box::new(self.parse_primary_expr().map_err(|err| {
-                                            format!("Expected expression: {}", err)
-                                        })?));
+                                        end = Some(Box::new(self.parse_primary_expr().map_err(
+                                            |err| format!("Expected expression: {}", err),
+                                        )?));
                                     } else {
-                                        start =
-                                            Some(Box::new(self.parse_primary_expr().map_err(|err| {
-                                                format!("Expected expression: {}", err)
-                                            })?));
+                                        start = Some(Box::new(self.parse_primary_expr().map_err(
+                                            |err| format!("Expected expression: {}", err),
+                                        )?));
                                     }
                                 }
                             }

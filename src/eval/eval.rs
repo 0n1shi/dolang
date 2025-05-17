@@ -412,8 +412,28 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                         ))
                     }
                 }
+                Value::ComposedFunc { left, right } => {
+                    let mut new_args = Vec::new();
+                    for arg in call_args {
+                        let arg_val = eval_expr(arg, env)?;
+                        new_args.push(arg_val);
+                    }
+                    let mut new_env = Env::new(Some(Box::new(env.clone())));
+                    for (arg, param) in new_args.iter().zip(left.params.iter()) {
+                        new_env.set(param.clone(), arg.clone());
+                    }
+                    let left_val = eval_expr(&left.body, &mut new_env)?;
+                    let right_val = eval_expr(&right.body, &mut new_env)?;
+                }
                 _ => Err("Function call requires a function".into()),
             }
+        }
+        Expr::Compose(items) => {
+            let mut values = Vec::new();
+            for item in items {
+                values.push(eval_expr(item, env)?);
+            }
+            Ok(Value::ComposedFunc(values))
         }
         Expr::Number(n) => Ok(Value::Number(*n)),
         Expr::String(s) => Ok(Value::String(s.clone())),
