@@ -316,6 +316,60 @@ fn test_parser() {
                 })],
             }),
         ),
+        (
+            "let odds = [1, 2, 3] |> filter(fn x -> x % 2 == 1)",
+            vec![
+                Token::Let,
+                Token::Identifier("odds".to_string()),
+                Token::Assign,
+                Token::LeftBracket,
+                Token::Number(1.0),
+                Token::Comma,
+                Token::Number(2.0),
+                Token::Comma,
+                Token::Number(3.0),
+                Token::RightBracket,
+                Token::ForwardPipe,
+                Token::Identifier("filter".to_string()),
+                Token::LeftParen,
+                Token::Fn,
+                Token::Identifier("x".to_string()),
+                Token::Arrow,
+                Token::Identifier("x".to_string()),
+                Token::Percent,
+                Token::Number(2.0),
+                Token::Equal,
+                Token::Number(1.0),
+                Token::RightParen,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Let {
+                    name: "odds".to_string(),
+                    val: Expr::Pipe {
+                        left: Box::new(Expr::List(vec![
+                            Expr::Number(1.0),
+                            Expr::Number(2.0),
+                            Expr::Number(3.0),
+                        ])),
+                        right: Box::new(Expr::Call {
+                            name: Box::new(Expr::Identifier("filter".to_string())),
+                            args: vec![Expr::Func {
+                                params: vec!["x".to_string()],
+                                body: Box::new(Expr::Comp {
+                                    left: Box::new(Expr::Factor {
+                                        left: Box::new(Expr::Identifier("x".to_string())),
+                                        op: FactorOp::Modulus,
+                                        right: Box::new(Expr::Number(2.0)),
+                                    }),
+                                    op: CompOp::Equal,
+                                    right: Box::new(Expr::Number(1.0)),
+                                }),
+                            }],
+                        }),
+                    },
+                }],
+            }),
+        ),
     ];
 
     for (_, tokens, expected) in test_cases {

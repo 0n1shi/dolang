@@ -5,57 +5,87 @@ use dolang::token::Token;
 fn test_lexer() {
     let test_cases = vec![
         (
-            "let x = 5",
+            "let if then else for fn in match | _ |> -> return = == != < <= > >= and or not true false, . .. : ( ) [ ] { }",
             vec![
                 Token::Let,
-                Token::Identifier("x".to_string()),
-                Token::Assign,
-                Token::Number(5.0),
-            ],
-        ),
-        (
-            "let pi = fn _ -> 3.14",
-            vec![
-                Token::Let,
-                Token::Identifier("pi".to_string()),
-                Token::Assign,
-                Token::Fn,
-                Token::Underscore,
-                Token::Arrow,
-                Token::Number(3.14),
-            ],
-        ),
-        (
-            "let add = fn x, y -> x + y",
-            vec![
-                Token::Let,
-                Token::Identifier("add".to_string()),
-                Token::Assign,
-                Token::Fn,
-                Token::Identifier("x".to_string()),
-                Token::Comma,
-                Token::Identifier("y".to_string()),
-                Token::Arrow,
-                Token::Identifier("x".to_string()),
-                Token::Plus,
-                Token::Identifier("y".to_string()),
-            ],
-        ),
-        (
-            "let r = if x < 5 then 10 else 20",
-            vec![
-                Token::Let,
-                Token::Identifier("r".to_string()),
-                Token::Assign,
                 Token::If,
-                Token::Identifier("x".to_string()),
-                Token::LessThan,
-                Token::Number(5.0),
                 Token::Then,
-                Token::Number(10.0),
                 Token::Else,
-                Token::Number(20.0),
-            ],
+                Token::For,
+                Token::Fn,
+                Token::In,
+                Token::Match,
+                Token::Pipe,
+                Token::Underscore,
+                Token::ForwardPipe,
+                Token::Arrow,
+                Token::Return,
+                Token::Assign,
+                Token::Equal,
+                Token::NotEqual,
+                Token::LessThan,
+                Token::LessThanOrEqual,
+                Token::GreaterThan,
+                Token::GreaterThanOrEqual,
+                Token::And,
+                Token::Or,
+                Token::Not,
+                Token::True,
+                Token::False,
+                Token::Comma,
+                Token::Dot,
+                Token::DotDot,
+                Token::Colon,
+                Token::LeftParen,
+                Token::RightParen,
+                Token::LeftBracket,
+                Token::RightBracket,
+                Token::LeftBrace,
+                Token::RightBrace
+            ]
+        ),
+        (
+            "let x = 5 + 3.14 - 2 * 10 / 4 % 2",
+            vec![
+                Token::Let,
+                Token::Identifier("x".to_string()),
+                Token::Assign,
+                Token::Number(5.0),
+                Token::Plus,
+                Token::Number(3.14),
+                Token::Minus,
+                Token::Number(2.0),
+                Token::Asterisk,
+                Token::Number(10.0),
+                Token::Slash,
+                Token::Number(4.0),
+                Token::Percent,
+                Token::Number(2.0)
+            ]
+        ),
+        (
+            "let str = \"Hello, World!\"",
+            vec![
+                Token::Let,
+                Token::Identifier("str".to_string()),
+                Token::Assign,
+                Token::String("Hello, World!".to_string())
+            ]
+        ),
+        (
+            "let arr = [1, 2, 3]",
+            vec![
+                Token::Let,
+                Token::Identifier("arr".to_string()),
+                Token::Assign,
+                Token::LeftBracket,
+                Token::Number(1.0),
+                Token::Comma,
+                Token::Number(2.0),
+                Token::Comma,
+                Token::Number(3.0),
+                Token::RightBracket
+            ]
         ),
     ];
 
