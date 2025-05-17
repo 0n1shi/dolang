@@ -4,7 +4,7 @@ let data = read_file("examples/users.csv")
 let rows =
   data
   |> split("\n")
-  |> filter(filled) # skip empty lines
+  |> filter(not_empty)
   |> map(split(","))
   |> tail # remove header
 

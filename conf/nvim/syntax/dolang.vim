@@ -8,7 +8,7 @@ endif
 
 " Keywords
 syntax keyword dolangKeyword let fn if else for in match return and or not
-syntax keyword dolangBuiltIn print println read_file map filter append first second third tail last int split str len empty filled
+syntax keyword dolangBuiltIn print println read_file map filter append first second third tail last int split str len empty not_empty
 syntax keyword dolangBoolean true false
 
 " Operators

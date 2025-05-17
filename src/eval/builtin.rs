@@ -95,8 +95,8 @@ pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
         args_len: 1,
     },
     BuiltinFunc {
-        name: "filled",
-        func: filled,
+        name: "not_empty",
+        func: not_empty,
         args_len: 1,
     },
 ];
@@ -312,10 +312,10 @@ pub fn empty(args: Vec<Value>) -> Result<Value, String> {
         _ => Err("empty: expected a list or string".to_string()),
     }
 }
-pub fn filled(args: Vec<Value>) -> Result<Value, String> {
+pub fn not_empty(args: Vec<Value>) -> Result<Value, String> {
     match args.as_slice() {
         [Value::List(l)] => Ok(Value::Boolean(!l.is_empty())),
         [Value::String(s)] => Ok(Value::Boolean(!s.is_empty())),
-        _ => Err("filled: expected a list or string".to_string()),
+        _ => Err("notEmpty: expected a list or string".to_string()),
     }
 }
