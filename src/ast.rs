@@ -85,10 +85,7 @@ pub enum Expr {
         name: Box<Expr>,
         args: Vec<Expr>,
     },
-    Compose {
-        left: Box<Expr>,
-        right: Box<Expr>,
-    },
+    Compose(Vec<Expr>),
     Identifier(String),
     Number(f64),
     String(String),

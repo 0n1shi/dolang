@@ -321,10 +321,10 @@ impl Parser {
                     // compose
                     Token::Identifier(id2) => {
                         self.next(); // Consume identifier
-                        return Ok(Expr::Compose {
-                            left: Box::new(Expr::Identifier(id.clone())),
-                            right: Box::new(Expr::Identifier(id2.clone())),
-                        });
+                        return Ok(Expr::Compose(vec![
+                            Expr::Identifier(id2.clone()),
+                            Expr::Identifier(id.clone()),
+                        ]));
                     }
                     // list access
                     Token::LeftBracket => {

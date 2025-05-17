@@ -23,8 +23,5 @@ pub enum Value {
         func: fn(Vec<Value>) -> Result<Value, String>,
         args: BuiltinFuncArgs,
     },
-    ComposedFunc {
-        left: Box<Value>,
-        right: Box<Value>,
-    },
+    ComposedFuncs(Vec<Value>),
 }

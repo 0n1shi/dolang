@@ -2,6 +2,8 @@ use crate::ast::{CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp
 use crate::eval::env::Env;
 use crate::eval::value::{BuiltinFuncArgs, Value};
 
+use super::eval_func::{eval_builtin_func, eval_func};
+
 pub fn eval(ast: AST, env: &mut Env) -> Result<(), String> {
     for stmt in &ast.stmts {
         eval_stmt(&stmt, env)?;
@@ -240,6 +242,10 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                         func: func.clone(),
                         args: args.clone(),
                     },
+                    Value::ComposedFunc { left, right } => Value::ComposedFunc {
+                        left: left.clone(),
+                        right: right.clone(),
+                    },
                 })
             } else {
                 Err(format!("Undefined variable: {}", expr))
@@ -343,89 +349,36 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     params,
                     body,
                     env: func_env,
-                } => {
-                    // normal function call
-                    if call_args.len() == params.len() {
-                        let mut new_env = Env::new(Some(Box::new(func_env)));
-                        for (arg, arg_name) in call_args.iter().zip(params) {
-                            let arg_val = eval_expr(arg, env)?;
-                            new_env.set(arg_name, arg_val);
-                        }
-                        eval_expr(&body, &mut new_env)
-                    }
-                    // currying
-                    else if params.len() > call_args.len() {
-                        let mut new_env = Env::new(Some(Box::new(func_env)));
-                        for (arg, arg_name) in call_args.iter().zip(params.iter()) {
-                            let arg_val = eval_expr(arg, env)?;
-                            new_env.set(arg_name.clone(), arg_val);
-                        }
-                        let remaining_params = params[call_args.len()..].to_vec();
-                        let remaining_body = body.clone();
-                        Ok(Value::Func {
-                            params: remaining_params,
-                            body: remaining_body,
-                            env: new_env,
-                        })
-                    } else {
-                        Err(format!(
-                            "Function {:?} requires {} arguments, but got {}",
-                            call_name,
-                            params.len(),
-                            call_args.len()
-                        ))
-                    }
-                }
+                } => eval_func(call_name, call_args, params, body, func_env, env),
                 Value::BuiltinFunc { name, func, args } => {
-                    // normal function call
-                    if call_args.len() == args.length {
-                        let mut arg_vals = Vec::new();
-                        for arg in args.curried.iter() {
-                            arg_vals.push(arg.clone());
-                        }
-                        for arg in call_args {
-                            arg_vals.push(eval_expr(arg, env)?);
-                        }
-                        func(arg_vals)
-                    }
-                    // currying
-                    else if args.length > call_args.len() {
-                        let mut new_args = args.curried.clone();
-                        for arg in call_args {
-                            let arg_val = eval_expr(arg, env)?;
-                            new_args.push(arg_val);
-                        }
-                        Ok(Value::BuiltinFunc {
-                            name,
-                            func: func.clone(),
-                            args: BuiltinFuncArgs {
-                                length: args.length - call_args.len(),
-                                curried: new_args,
-                            },
-                        })
-                    } else {
-                        Err(format!(
-                            "Function {:?} requires {} arguments, but got {}",
-                            call_name,
-                            args.length,
-                            call_args.len()
-                        ))
-                    }
+                    eval_builtin_func(call_name, call_args, name, func, args, env)
                 }
-                Value::ComposedFunc { left, right } => {
-                    let mut new_args = Vec::new();
-                    for arg in call_args {
-                        let arg_val = eval_expr(arg, env)?;
-                        new_args.push(arg_val);
+                Value::ComposedFuncs(funcs) => {
+                    let mut returned = Option::<Value>::None;
+                    for func in funcs {
+                        let mut new_call_args = call_args.clone();
+                        if let Some(returned) = returned {
+                            new_call_args.push(returned);
+                        }
+                        match func {
+                            Value::Func {
+                                params,
+                                body,
+                                env: func_env,
+                            } => {
+                                eval_func(call_name, &new_call_args, params, body, func_env, env)?;
+                            }
+                            _ => return Err("Composed function requires a function".into()),
+                        }
                     }
-                    let mut new_env = Env::new(Some(Box::new(env.clone())));
-                    for (arg, param) in new_args.iter().zip(left.params.iter()) {
-                        new_env.set(param.clone(), arg.clone());
-                    }
-                    let left_val = eval_expr(&left.body, &mut new_env)?;
-                    let right_val = eval_expr(&right.body, &mut new_env)?;
+                    Ok(Value::ComposedFuncs(values))
                 }
-                _ => Err("Function call requires a function".into()),
+                _ => {
+                    return Err(format!(
+                        "Function call requires a function, but got {:?}",
+                        func_val
+                    ))
+                }
             }
         }
         Expr::Compose(items) => {
