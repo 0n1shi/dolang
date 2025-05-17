@@ -330,6 +330,30 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                         ))
                     }
                 }
+                Value::String(s) => {
+                    let start_val = start.as_ref().map(|s| eval_expr(s, env)).transpose()?;
+                    let end_val = end.as_ref().map(|e| eval_expr(e, env)).transpose()?;
+                    let start_idx = start_val
+                        .and_then(|v| match v {
+                            Value::Number(n) => Some(n as usize),
+                            _ => None,
+                        })
+                        .unwrap_or(0);
+                    let end_idx = end_val
+                        .and_then(|v| match v {
+                            Value::Number(n) => Some(n as usize),
+                            _ => None,
+                        })
+                        .unwrap_or(s.len());
+                    if start_idx <= end_idx && end_idx <= s.len() {
+                        Ok(Value::String(s[start_idx..end_idx].to_string()))
+                    } else {
+                        Err(format!(
+                            "Slice indices out of bounds: {}..{}",
+                            start_idx, end_idx
+                        ))
+                    }
+                }
                 _ => Err("Slicing requires a list".into()),
             }
         }
