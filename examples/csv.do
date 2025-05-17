@@ -1,12 +1,10 @@
-let not_empty = fn row -> not empty(row)
-
 let data = read_file("examples/users.csv")
 
 # convert CSV data to a list of lists
 let rows =
   data
   |> split("\n")
-  |> filter(not_empty)
+  |> filter(filled) # skip empty lines
   |> map(split(","))
   |> tail # remove header
 

@@ -94,6 +94,11 @@ pub const BUILTIN_FUNCTIONS: &[BuiltinFunc] = &[
         func: empty,
         args_len: 1,
     },
+    BuiltinFunc {
+        name: "filled",
+        func: filled,
+        args_len: 1,
+    },
 ];
 
 fn format_value(value: &Value) -> String {
@@ -305,5 +310,12 @@ pub fn empty(args: Vec<Value>) -> Result<Value, String> {
         [Value::List(l)] => Ok(Value::Boolean(l.is_empty())),
         [Value::String(s)] => Ok(Value::Boolean(s.is_empty())),
         _ => Err("empty: expected a list or string".to_string()),
+    }
+}
+pub fn filled(args: Vec<Value>) -> Result<Value, String> {
+    match args.as_slice() {
+        [Value::List(l)] => Ok(Value::Boolean(!l.is_empty())),
+        [Value::String(s)] => Ok(Value::Boolean(!s.is_empty())),
+        _ => Err("filled: expected a list or string".to_string()),
     }
 }
