@@ -2,6 +2,23 @@
 
 🚧 THIS PROJECT IS STILL EXPERIMENTAL AND UNDER DEVELOPMENT 🚧
 
+```dolang
+let data = read_file("users.csv")
+
+let rows =
+  data
+  |> split("\n")
+  |> filter(not_empty)
+  |> map(split(","))
+  |> tail # remove header
+
+let ids = rows |> map(first)
+let names = rows |> map(second)
+
+println(ids)
+println(names)
+```
+
 ## 🧭 Core Philosophy
 
 > “Learn how to think, not just how to write” — a functional language with simple and consistent syntax to support that goal.
