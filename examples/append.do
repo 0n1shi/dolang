@@ -1,5 +1,5 @@
-let empty = []
-let nums = append(empty, [1, 2, 3])
+let list = []
+let appended = append(list, [1, 2, 3])
 
-println(empty)
-println(nums)
+println(list)
+println(appended)

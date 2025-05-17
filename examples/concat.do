@@ -1,5 +1,5 @@
-let temp = "Hi, "
+let greet = "Hi, "
 let name = "John"
-let greet = temp + name
+let msg = greet + name
 
-println(greet)
+println(msg)
