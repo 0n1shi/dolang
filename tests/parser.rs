@@ -193,9 +193,9 @@ fn test_parser() {
                             Expr::Number(3.0),
                         ]),
                     },
-                    Stmt::Expr(Expr::ListAccess {
+                    Stmt::Expr(Expr::Index {
                         list: Box::new(Expr::Identifier("x".to_string())),
-                        index: 1.0,
+                        index: Box::new(Expr::Number(1.0)),
                     }),
                 ],
             }),
