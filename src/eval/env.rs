@@ -1,4 +1,4 @@
-use crate::eval::builtin::BUILTIN_FUNCTIONS;
+use crate::eval::builtin::builtin::BUILTIN_FUNCTIONS;
 use crate::eval::value::{BuiltinFuncArgs, Value};
 
 #[derive(Debug, Clone, PartialEq)]

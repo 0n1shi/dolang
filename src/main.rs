@@ -145,7 +145,6 @@ fn run_repl(debug: bool) {
             println!("Parsed AST: {:?}", ast);
         }
 
-        println!("Parsed AST: {:?}", ast);
         eval(ast, &mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });
