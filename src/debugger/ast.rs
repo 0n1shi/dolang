@@ -58,6 +58,13 @@ fn print_expr(expr: &Expr, level: usize) {
                 print_expr(item, level + 1);
             }
         }
+        Expr::Record(fields) => {
+            println!("{pad}Record:");
+            for (key, value) in fields {
+                println!("{pad}  {key}:");
+                print_expr(value, level + 1);
+            }
+        }
         Expr::Pipe { left, right } => {
             println!("{pad}Pipe:");
             print_expr(left, level + 1);
@@ -108,6 +115,11 @@ fn print_expr(expr: &Expr, level: usize) {
                 println!("{pad}  End:");
                 print_expr(end, level + 2);
             }
+        }
+        Expr::Access { record, field } => {
+            println!("{pad}Access:");
+            print_expr(record, level + 1);
+            println!("{pad}  Field: {field}");
         }
         Expr::Call { name, args } => {
             println!("{pad}Call:");

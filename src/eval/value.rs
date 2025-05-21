@@ -13,6 +13,7 @@ pub enum Value {
     String(String),
     Boolean(bool),
     List(Vec<Value>),
+    Record(std::collections::HashMap<String, Value>),
     Func {
         params: Vec<String>,
         body: Box<Expr>,

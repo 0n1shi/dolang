@@ -81,6 +81,14 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
             }
             Ok(Value::List(values))
         }
+        Expr::Record(fields) => {
+            let mut record = std::collections::HashMap::new();
+            for (key, value) in fields {
+                let val = eval_expr(value, env)?;
+                record.insert(key.clone(), val);
+            }
+            Ok(Value::Record(record))
+        }
         Expr::Pipe { left, right } => {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;
@@ -230,6 +238,7 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     Value::String(s) => Value::String(s.clone()),
                     Value::Boolean(b) => Value::Boolean(*b),
                     Value::List(l) => Value::List(l.to_vec()),
+                    Value::Record(r) => Value::Record(r.clone()),
                     Value::Func { params, body, env } => Value::Func {
                         params: params.clone(),
                         body: body.clone(),
@@ -301,6 +310,19 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                     }
                 }
                 _ => Err("Indexing requires a list and a number".into()),
+            }
+        }
+        Expr::Access { record, field } => {
+            let record_val = eval_expr(record, env)?;
+            match record_val {
+                Value::Record(r) => {
+                    if let Some(value) = r.get(field) {
+                        Ok(value.clone())
+                    } else {
+                        Err(format!("Field not found: {}", field))
+                    }
+                }
+                _ => Err("Access requires a record".into()),
             }
         }
         Expr::Slice { list, start, end } => {

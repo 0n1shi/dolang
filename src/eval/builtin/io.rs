@@ -9,6 +9,13 @@ fn format_value(value: &Value) -> String {
             let items: Vec<String> = l.iter().map(format_value).collect();
             format!("[{}]", items.join(", "))
         }
+        Value::Record(r) => {
+            let items: Vec<String> = r
+                .iter()
+                .map(|(k, v)| format!("{}: {}", k, format_value(v)))
+                .collect();
+            format!("{{{}}}", items.join(", "))
+        }
         Value::Func {
             params, body: _, ..
         } => {

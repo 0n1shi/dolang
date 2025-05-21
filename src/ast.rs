@@ -40,6 +40,7 @@ pub enum Expr {
         cases: Vec<Case>,
     },
     List(Vec<Expr>),
+    Record(Vec<(String, Expr)>),
     Pipe {
         left: Box<Expr>,
         right: Box<Expr>,
@@ -84,6 +85,10 @@ pub enum Expr {
     Call {
         name: Box<Expr>,
         args: Vec<Expr>,
+    },
+    Access {
+        record: Box<Expr>,
+        field: String,
     },
     Identifier(String),
     Number(f64),

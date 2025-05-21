@@ -8,6 +8,25 @@ use dolang::eval::value::Value;
 fn test_eval_expr() {
     let test_cases = vec![
         (
+            // { name: "John", age: 30 }
+            Expr::Record(
+                vec![
+                    ("name".to_string(), Expr::String("John".to_string())),
+                    ("age".to_string(), Expr::Number(30.0)),
+                ]
+                .into_iter()
+                .collect(),
+            ),
+            Ok(Value::Record(
+                vec![
+                    ("name".to_string(), Value::String("John".to_string())),
+                    ("age".to_string(), Value::Number(30.0)),
+                ]
+                .into_iter()
+                .collect(),
+            )),
+        ),
+        (
             // 5 + 5 == 10 and true -> true
             Expr::Logic {
                 left: Box::new(Expr::Comp {

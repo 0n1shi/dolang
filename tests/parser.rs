@@ -251,6 +251,52 @@ fn test_parser() {
             }),
         ),
         (
+            "{ name: \"John\", age: 30 }",
+            vec![
+                Token::LeftBrace,
+                Token::Identifier("name".to_string()),
+                Token::Colon,
+                Token::String("John".to_string()),
+                Token::Comma,
+                Token::Identifier("age".to_string()),
+                Token::Colon,
+                Token::Number(30.0),
+                Token::RightBrace,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Record(vec![
+                    ("name".to_string(), Expr::String("John".to_string())),
+                    ("age".to_string(), Expr::Number(30.0)),
+                ]))],
+            }),
+        ),
+        (
+            "let person = { name: \"John\", age: 30 }",
+            vec![
+                Token::Let,
+                Token::Identifier("person".to_string()),
+                Token::Assign,
+                Token::LeftBrace,
+                Token::Identifier("name".to_string()),
+                Token::Colon,
+                Token::String("John".to_string()),
+                Token::Comma,
+                Token::Identifier("age".to_string()),
+                Token::Colon,
+                Token::Number(30.0),
+                Token::RightBrace,
+            ],
+            Ok(AST {
+                stmts: vec![Stmt::Let {
+                    name: "person".to_string(),
+                    val: Expr::Record(vec![
+                        ("name".to_string(), Expr::String("John".to_string())),
+                        ("age".to_string(), Expr::Number(30.0)),
+                    ]),
+                }],
+            }),
+        ),
+        (
             "
             let x = 1
             let r = match x
