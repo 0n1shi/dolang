@@ -333,14 +333,13 @@ impl Parser {
                                 }
                                 _ => {
                                     if has_dots {
-                                        end = Some(Box::new(self.parse_primary_expr().map_err(|err| {
-                                            format!("Expected expression: {}", err)
-                                        })?));
+                                        end = Some(Box::new(self.parse_primary_expr().map_err(
+                                            |err| format!("Expected expression: {}", err),
+                                        )?));
                                     } else {
-                                        start =
-                                            Some(Box::new(self.parse_primary_expr().map_err(|err| {
-                                                format!("Expected expression: {}", err)
-                                            })?));
+                                        start = Some(Box::new(self.parse_primary_expr().map_err(
+                                            |err| format!("Expected expression: {}", err),
+                                        )?));
                                     }
                                 }
                             }
@@ -389,6 +388,21 @@ impl Parser {
                         return Ok(Expr::Call {
                             name: Box::new(Expr::Identifier(id.clone())),
                             args,
+                        });
+                    }
+                    // record access
+                    Token::Dot => {
+                        self.next(); // Consume '.'
+
+                        let field = match self.current_token() {
+                            Token::Identifier(field_name) => field_name.clone(),
+                            _ => return Err("Expected identifier after '.'".into()),
+                        };
+                        self.next(); // Consume identifier
+
+                        return Ok(Expr::Access {
+                            record: Box::new(Expr::Identifier(id.clone())),
+                            field,
                         });
                     }
                     _ => {
@@ -443,6 +457,39 @@ impl Parser {
                 self.next(); // Consume ']'
 
                 Ok(Expr::List(elements))
+            }
+            // record
+            Token::LeftBrace => {
+                self.next(); // Consume '{'
+
+                let mut fields = Vec::new();
+                while self.current_token() != &Token::RightBrace {
+                    let curr_tok = self.current_token().clone();
+                    match curr_tok {
+                        Token::Identifier(field_name) => {
+                            self.next(); // Consume field name
+                            if self.current_token() != &Token::Colon {
+                                return Err("Expected ':' after field name".into());
+                            }
+                            self.next(); // Consume ':'
+
+                            let field_value = self.parse_expr()?;
+                            fields.push((field_name.clone(), field_value));
+                        }
+                        _ => return Err("Expected identifier for field name".into()),
+                    }
+                    if self.current_token() == &Token::Comma {
+                        self.next(); // Consume ','
+                    } else {
+                        break;
+                    }
+                }
+                if self.current_token() != &Token::RightBrace {
+                    return Err("Expected '}'".into());
+                }
+                self.next(); // Consume '}'
+
+                return Ok(Expr::Record(fields));
             }
             _ => Err(format!(
                 "Expected identifier, number, string, true, false, or '(' but found: {:?}",

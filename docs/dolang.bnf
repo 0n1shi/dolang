@@ -35,14 +35,18 @@
 <postfix>   ::= <call>
               | <index>
               | <slice>
+              | <access>
+<access>    ::= "." <identifier>
 
 <call>  ::= "(" [ <expr> { "," <expr> } ] ")"
 <index> ::= "[" <expr> "]"
 <slice> ::= "[" [<expr>] ".." [<expr>] "]"
+<access>::=
 
 <primary>   ::= <identifier>
               | <literal>
               | <list>
+              | <record>
               | "(" <expr> ")"
 
 <identifier>    ::= ( <letter> | "_" ) { <letter> | <digit> | "_" }
@@ -51,3 +55,5 @@
                   | "true"
                   | "false"
 <list>          ::= "[" [ <expr> { "," <expr> } ] "]"
+<record>        ::= "{" [ <field> { "," <field> } ] "}"
+<field>         ::= <identifier> ":" <expr>
