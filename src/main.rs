@@ -2,8 +2,11 @@ use dolang::debugger::ast::print_ast;
 use dolang::debugger::token::print_tokens;
 use dolang::eval::env::Env;
 use dolang::eval::eval::eval;
+use dolang::lsp::lsp::Backend;
 use dolang::{lexer, parser, token};
 use std::io::{self, Write};
+
+use tower_lsp::{LspService, Server};
 
 const VERSION: &str = "0.1.0";
 
@@ -13,6 +16,7 @@ fn main() {
     let mut debug = false;
     let mut file_name = String::new();
     let mut repl = false;
+    let mut lsp = false;
     let mut help = false;
     let mut version = false;
 
@@ -26,6 +30,9 @@ fn main() {
             }
             "v" | "version" => {
                 version = true;
+            }
+            "l" | "lsp" => {
+                lsp = true;
             }
             "-d" | "--debug" => {
                 debug = true;
@@ -46,6 +53,10 @@ fn main() {
     }
     if version {
         show_version();
+        return;
+    }
+    if lsp {
+        run_lsp();
         return;
     }
     if repl {
@@ -150,6 +161,14 @@ fn run_repl(debug: bool) {
             eprintln!("Error evaluating input: {}", e);
         });
     }
+}
+
+fn run_lsp() {
+    let stdin = tokio::io::stdin();
+    let stdout = tokio::io::stdout();
+
+    let (service, socket) = LspService::new(|client| Backend { client });
+    Server::new(stdin, stdout, socket).serve(service).await;
 }
 
 fn show_help() {
