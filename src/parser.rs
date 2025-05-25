@@ -17,9 +17,6 @@ impl Parser {
     /**
      * Utilities
      */
-    pub fn current_token(&self) -> &Token {
-        self.tokens.get(self.position).unwrap_or(&Token::EOF)
-    }
     fn current_token_type(&self) -> &TokenType {
         self.tokens.get(self.position).map_or(&TokenType::EOF, |t| &t.token_type)
     }
@@ -29,12 +26,12 @@ impl Parser {
 
     pub fn parse(&mut self) -> Result<AST, String> {
         let mut stmts = Vec::new();
-        while self.current_token_type() != &Token::EOF {
+        while self.current_token_type() != &TokenType::EOF {
             match self.parse_statement() {
                 Ok(stmt) => stmts.push(stmt),
                 Err(e) => return Err(format!("Error parsing statement: {}", e)),
             }
-            if self.current_token_type() == &Token::EOF {
+            if self.current_token_type() == &TokenType::EOF {
                 break;
             }
         }
@@ -45,8 +42,8 @@ impl Parser {
      * Parsing methods
      */
     fn parse_statement(&mut self) -> Result<Stmt, String> {
-        match self.current_token() {
-            Token::Let => self.parse_let_stmt(),
+        match self.current_token_type() {
+            TokenType::Let => self.parse_let_stmt(),
             _ => self.parse_expr_stmt(),
         }
     }
@@ -59,7 +56,7 @@ impl Parser {
         };
         self.next(); // Consume identifier
 
-        if self.current_token() != &Token::Assign {
+        if self.current_token_type() != &TokenType::Assign {
             return Err("Expected '=' after identifier".into());
         }
         self.next(); // Consume '='
@@ -72,17 +69,17 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        if self.current_token() == &Token::If {
+        if self.current_token_type() == &TokenType::If {
             self.next(); // Consume 'if'
             let cond = self.parse_expr()?;
 
-            if self.current_token() != &Token::Then {
+            if self.current_token_type() != &TokenType::Then {
                 return Err("Expected 'then' after 'if' condition".into());
             }
             self.next(); // Consume 'then'
             let then_branch = self.parse_expr()?;
 
-            if self.current_token() != &Token::Else {
+            if self.current_token_type() != &TokenType::Else {
                 return Err("Expected 'else' after 'then' branch".into());
             }
             self.next(); // Consume 'else'
@@ -93,26 +90,26 @@ impl Parser {
                 then: Box::new(then_branch),
                 else_: Box::new(else_branch),
             });
-        } else if self.current_token() == &Token::Match {
+        } else if self.current_token_type() == &TokenType::Match {
             self.next(); // Consume 'match'
 
             let cond = self.parse_expr()?;
 
             let mut cases = Vec::new();
-            while self.current_token() == &Token::Pipe {
+            while self.current_token_type() == &TokenType::Pipe {
                 self.next(); // Consume '|'
 
-                let pattern = match self.current_token() {
-                    Token::Number(n) => Pattern::Number(*n),
-                    Token::String(s) => Pattern::String(s.clone()),
-                    Token::True => Pattern::Boolean(true),
-                    Token::False => Pattern::Boolean(false),
-                    Token::Underscore => Pattern::Wildcard,
+                let pattern = match self.current_token_type() {
+                    TokenType::Number(n) => Pattern::Number(*n),
+                    TokenType::String(s) => Pattern::String(s.clone()),
+                    TokenType::True => Pattern::Boolean(true),
+                    TokenType::False => Pattern::Boolean(false),
+                    TokenType::Underscore => Pattern::Wildcard,
                     _ => return Err("Expected pattern after '|'".into()),
                 };
                 self.next(); // Consume pattern
 
-                if self.current_token() != &Token::Arrow {
+                if self.current_token_type() != &TokenType::Arrow {
                     return Err("Expected '->' after pattern".into());
                 }
                 self.next(); // Consume '->'
@@ -127,30 +124,30 @@ impl Parser {
                 cond: Box::new(cond),
                 cases,
             });
-        } else if self.current_token() == &Token::Fn {
+        } else if self.current_token_type() == &TokenType::Fn {
             self.next(); // Consume 'fn'
 
-            if self.current_token() == &Token::Underscore {
+            if self.current_token_type() == &TokenType::Underscore {
                 self.next(); // Consume '_'
             }
 
             let mut params = Vec::new();
-            while self.current_token() != &Token::Arrow {
-                match self.current_token() {
-                    Token::Identifier(id) => {
+            while self.current_token_type() != &TokenType::Arrow {
+                match self.current_token_type() {
+                    TokenType::Identifier(id) => {
                         params.push(id.clone());
                         self.next(); // Consume identifier
                     }
                     _ => return Err("Expected identifier in function arguments".into()),
                 }
-                if self.current_token() == &Token::Comma {
+                if self.current_token_type() == &TokenType::Comma {
                     self.next(); // Consume ','
                 } else {
                     break;
                 }
             }
 
-            if self.current_token() != &Token::Arrow {
+            if self.current_token_type() != &TokenType::Arrow {
                 return Err("Expected '->' after function arguments".into());
             }
             self.next(); // Consume '->'
@@ -167,7 +164,7 @@ impl Parser {
     fn parse_pipe_expr(&mut self) -> Result<Expr, String> {
         let mut expr = self.parse_logic_expr()?;
 
-        while self.current_token() == &Token::ForwardPipe {
+        while self.current_token_type() == &TokenType::ForwardPipe {
             self.next(); // Consume '|>'
 
             let right = self.parse_logic_expr()?;
@@ -183,10 +180,10 @@ impl Parser {
     fn parse_logic_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_comp_expr()?;
 
-        if self.current_token() == &Token::And || self.current_token() == &Token::Or {
-            let op = match self.current_token() {
-                Token::And => LogicOp::And,
-                Token::Or => LogicOp::Or,
+        if self.current_token_type() == &TokenType::And || self.current_token_type() == &TokenType::Or {
+            let op = match self.current_token_type() {
+                TokenType::And => LogicOp::And,
+                TokenType::Or => LogicOp::Or,
                 _ => unreachable!(),
             };
             self.next(); // Consume 'and'
@@ -205,22 +202,22 @@ impl Parser {
     fn parse_comp_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_range_expr()?;
         if [
-            Token::Equal,
-            Token::NotEqual,
-            Token::LessThan,
-            Token::LessThanOrEqual,
-            Token::GreaterThan,
-            Token::GreaterThanOrEqual,
+            TokenType::Equal,
+            TokenType::NotEqual,
+            TokenType::LessThan,
+            TokenType::LessThanOrEqual,
+            TokenType::GreaterThan,
+            TokenType::GreaterThanOrEqual,
         ]
-        .contains(self.current_token())
+        .contains(self.current_token_type())
         {
-            let op = match self.current_token() {
-                Token::Equal => CompOp::Equal,
-                Token::NotEqual => CompOp::NotEqual,
-                Token::LessThan => CompOp::LessThan,
-                Token::LessThanOrEqual => CompOp::LessThanOrEqual,
-                Token::GreaterThan => CompOp::GreaterThan,
-                Token::GreaterThanOrEqual => CompOp::GreaterThanOrEqual,
+            let op = match self.current_token_type() {
+                TokenType::Equal => CompOp::Equal,
+                TokenType::NotEqual => CompOp::NotEqual,
+                TokenType::LessThan => CompOp::LessThan,
+                TokenType::LessThanOrEqual => CompOp::LessThanOrEqual,
+                TokenType::GreaterThan => CompOp::GreaterThan,
+                TokenType::GreaterThanOrEqual => CompOp::GreaterThanOrEqual,
                 _ => unreachable!(),
             };
             self.next(); // Consume comparison operator
@@ -238,7 +235,7 @@ impl Parser {
     }
     fn parse_range_expr(&mut self) -> Result<Expr, String> {
         let start = self.parse_term_expr()?;
-        if self.current_token() == &Token::DotDot {
+        if self.current_token_type() == &TokenType::DotDot {
             self.next(); // Consume '..'
 
             let end = self.parse_term_expr()?;
@@ -253,10 +250,10 @@ impl Parser {
     }
     fn parse_term_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_factor_expr()?;
-        if [Token::Plus, Token::Minus].contains(self.current_token()) {
-            let op = match self.current_token() {
-                Token::Plus => TermOp::Plus,
-                Token::Minus => TermOp::Minus,
+        if [TokenType::Plus,TokenType::Minus].contains(self.current_token_type()) {
+            let op = match self.current_token_type() {
+                TokenType::Plus => TermOp::Plus,
+                TokenType::Minus => TermOp::Minus,
                 _ => unreachable!(),
             };
             self.next(); // Consume '+' or '-'
@@ -274,11 +271,11 @@ impl Parser {
     }
     fn parse_factor_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_unary_expr()?;
-        if [Token::Asterisk, Token::Slash, Token::Percent].contains(self.current_token()) {
-            let op = match self.current_token() {
-                Token::Asterisk => FactorOp::Multiply,
-                Token::Slash => FactorOp::Divide,
-                Token::Percent => FactorOp::Modulus,
+        if [TokenType::Asterisk,TokenType::Slash,TokenType::Percent].contains(self.current_token_type()) {
+            let op = match self.current_token_type() {
+                TokenType::Asterisk => FactorOp::Multiply,
+                TokenType::Slash => FactorOp::Divide,
+                TokenType::Percent => FactorOp::Modulus,
                 _ => unreachable!(),
             };
             self.next(); // Consume '*' or '/'
@@ -295,10 +292,10 @@ impl Parser {
         }
     }
     fn parse_unary_expr(&mut self) -> Result<Expr, String> {
-        if [Token::Minus, Token::Not].contains(self.current_token()) {
-            let op = match self.current_token() {
-                Token::Minus => UnaryOp::Minus,
-                Token::Not => UnaryOp::Not,
+        if [TokenType::Minus,TokenType::Not].contains(self.current_token_type()) {
+            let op = match self.current_token_type() {
+                TokenType::Minus => UnaryOp::Minus,
+                TokenType::Not => UnaryOp::Not,
                 _ => unreachable!(),
             };
             self.next(); // Consume '-' or 'not'
@@ -314,23 +311,23 @@ impl Parser {
         }
     }
     fn parse_primary_expr(&mut self) -> Result<Expr, String> {
-        let curr_tok = self.current_token().clone();
+        let curr_tok = self.current_token_type().clone();
         match curr_tok {
-            Token::Identifier(id) => {
+            TokenType::Identifier(id) => {
                 self.next(); // Consume identifier
 
-                match self.current_token() {
+                match self.current_token_type() {
                     // list access
-                    Token::LeftBracket => {
+                    TokenType::LeftBracket => {
                         self.next(); // Consume '['
 
                         let mut start = None;
                         let mut has_dots = false;
                         let mut end = None;
 
-                        while self.current_token() != &Token::RightBracket {
-                            match self.current_token() {
-                                Token::DotDot => {
+                        while self.current_token_type() != &TokenType::RightBracket {
+                            match self.current_token_type() {
+                                TokenType::DotDot => {
                                     has_dots = true;
                                     self.next(); // Consume '..'
                                 }
@@ -347,7 +344,7 @@ impl Parser {
                                 }
                             }
                         }
-                        if self.current_token() != &Token::RightBracket {
+                        if self.current_token_type() != &TokenType::RightBracket {
                             return Err("Expected ']'".into());
                         }
                         self.next(); // Consume ']'
@@ -370,20 +367,20 @@ impl Parser {
                         return Ok(list_access);
                     }
                     // function call
-                    Token::LeftParen => {
+                    TokenType::LeftParen => {
                         self.next(); // Consume '('
 
                         let mut args = Vec::new();
-                        while self.current_token() != &Token::RightParen {
+                        while self.current_token_type() != &TokenType::RightParen {
                             let arg = self.parse_expr()?;
                             args.push(arg);
-                            if self.current_token() == &Token::Comma {
+                            if self.current_token_type() == &TokenType::Comma {
                                 self.next(); // Consume ','
                             } else {
                                 break;
                             }
                         }
-                        if self.current_token() != &Token::RightParen {
+                        if self.current_token_type() != &TokenType::RightParen {
                             return Err("Expected ')'".into());
                         }
                         self.next(); // Consume ')'
@@ -394,11 +391,11 @@ impl Parser {
                         });
                     }
                     // record access
-                    Token::Dot => {
+                    TokenType::Dot => {
                         self.next(); // Consume '.'
 
-                        let field = match self.current_token() {
-                            Token::Identifier(field_name) => field_name.clone(),
+                        let field = match self.current_token_type() {
+                            TokenType::Identifier(field_name) => field_name.clone(),
                             _ => return Err("Expected identifier after '.'".into()),
                         };
                         self.next(); // Consume identifier
@@ -413,48 +410,48 @@ impl Parser {
                     }
                 }
             }
-            Token::Number(n) => {
+            TokenType::Number(n) => {
                 self.next(); // Consume number
                 Ok(Expr::Number(n))
             }
-            Token::String(s) => {
+            TokenType::String(s) => {
                 self.next(); // Consume string
                 Ok(Expr::String(s.clone()))
             }
-            Token::True => {
+            TokenType::True => {
                 self.next(); // Consume 'true'
                 Ok(Expr::Boolean(true))
             }
-            Token::False => {
+            TokenType::False => {
                 self.next(); // Consume 'false'
                 Ok(Expr::Boolean(false))
             }
-            Token::LeftParen => {
+            TokenType::LeftParen => {
                 self.next(); // Consume '('
 
                 let expr = self.parse_expr()?;
 
-                if self.current_token() != &Token::RightParen {
+                if self.current_token_type() != &TokenType::RightParen {
                     return Err("Expected ')'".into());
                 }
                 self.next(); // Consume ')'
 
                 Ok(expr)
             }
-            Token::LeftBracket => {
+            TokenType::LeftBracket => {
                 self.next(); // Consume '['
                 let mut elements = Vec::new();
-                while self.current_token() != &Token::RightBracket {
+                while self.current_token_type() != &TokenType::RightBracket {
                     let expr = self.parse_expr()?;
                     elements.push(expr);
-                    if self.current_token() == &Token::Comma {
+                    if self.current_token_type() == &TokenType::Comma {
                         self.next(); // Consume ','
                     } else {
                         break;
                     }
                 }
 
-                if self.current_token() != &Token::RightBracket {
+                if self.current_token_type() != &TokenType::RightBracket {
                     return Err("Expected ']'".into());
                 }
                 self.next(); // Consume ']'
@@ -462,16 +459,16 @@ impl Parser {
                 Ok(Expr::List(elements))
             }
             // record
-            Token::LeftBrace => {
+            TokenType::LeftBrace => {
                 self.next(); // Consume '{'
 
                 let mut fields = Vec::new();
-                while self.current_token() != &Token::RightBrace {
-                    let curr_tok = self.current_token().clone();
+                while self.current_token_type() != &TokenType::RightBrace {
+                    let curr_tok = self.current_token_type().clone();
                     match curr_tok {
-                        Token::Identifier(field_name) => {
+                        TokenType::Identifier(field_name) => {
                             self.next(); // Consume field name
-                            if self.current_token() != &Token::Colon {
+                            if self.current_token_type() != &TokenType::Colon {
                                 return Err("Expected ':' after field name".into());
                             }
                             self.next(); // Consume ':'
@@ -481,13 +478,13 @@ impl Parser {
                         }
                         _ => return Err("Expected identifier for field name".into()),
                     }
-                    if self.current_token() == &Token::Comma {
+                    if self.current_token_type() == &TokenType::Comma {
                         self.next(); // Consume ','
                     } else {
                         break;
                     }
                 }
-                if self.current_token() != &Token::RightBrace {
+                if self.current_token_type() != &TokenType::RightBrace {
                     return Err("Expected '}'".into());
                 }
                 self.next(); // Consume '}'
@@ -496,7 +493,7 @@ impl Parser {
             }
             _ => Err(format!(
                 "Expected identifier, number, string, true, false, or '(' but found: {:?}",
-                self.current_token()
+                self.current_token_type()
             )),
         }
     }

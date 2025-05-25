@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::token::{Token, Position, TokenType, Range};
 
 pub struct Lexer {
     input: Vec<char>,
