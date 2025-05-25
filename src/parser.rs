@@ -1,5 +1,5 @@
 use crate::ast::{Case, CompOp, Expr, FactorOp, LogicOp, Pattern, Stmt, TermOp, UnaryOp, AST};
-use crate::token::Token;
+use crate::token::{Token, TokenType};
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -17,8 +17,11 @@ impl Parser {
     /**
      * Utilities
      */
-    fn current_token(&self) -> &Token {
+    pub fn current_token(&self) -> &Token {
         self.tokens.get(self.position).unwrap_or(&Token::EOF)
+    }
+    fn current_token_type(&self) -> &TokenType {
+        self.tokens.get(self.position).map_or(&TokenType::EOF, |t| &t.token_type)
     }
     fn next(&mut self) {
         self.position += 1;
@@ -26,12 +29,12 @@ impl Parser {
 
     pub fn parse(&mut self) -> Result<AST, String> {
         let mut stmts = Vec::new();
-        while self.current_token() != &Token::EOF {
+        while self.current_token_type() != &Token::EOF {
             match self.parse_statement() {
                 Ok(stmt) => stmts.push(stmt),
                 Err(e) => return Err(format!("Error parsing statement: {}", e)),
             }
-            if self.current_token() == &Token::EOF {
+            if self.current_token_type() == &Token::EOF {
                 break;
             }
         }
@@ -50,8 +53,8 @@ impl Parser {
     fn parse_let_stmt(&mut self) -> Result<Stmt, String> {
         self.next(); // Consume 'let'
                      //
-        let name = match self.current_token() {
-            Token::Identifier(id) => id.clone(),
+        let name = match self.current_token_type() {
+            TokenType::Identifier(id) => id.clone(),
             _ => return Err("Expected identifier after 'let'".into()),
         };
         self.next(); // Consume identifier

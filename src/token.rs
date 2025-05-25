@@ -1,5 +1,17 @@
 #[derive(Debug, Clone, PartialEq)]
-pub enum Token {
+pub struct Position {
+    pub line: usize,
+    pub char: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Range {
+    pub start: Position,
+    pub end: Position,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum TokenType {
     Let,                // let
     If,                 // if
     Then,               // then
@@ -47,8 +59,14 @@ pub enum Token {
     EOF,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct Token {
+    pub token_type: TokenType,
+    pub range: Range,
+}
+
 impl Token {
     pub fn is_eof(&self) -> bool {
-        matches!(self, Token::EOF)
+        matches!(self.token_type, TokenType::EOF)
     }
 }
