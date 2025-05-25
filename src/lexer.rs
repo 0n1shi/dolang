@@ -1,10 +1,10 @@
-use crate::token::{Token, Position, TokenType, Range};
+use crate::token::{Position, Range, Token, TokenType};
 
 pub struct Lexer {
     input: Vec<char>,
     position: usize,
     line: usize,
-    char: usize,
+    column: usize,
 
     start: Position,
 }
@@ -15,9 +15,9 @@ impl Lexer {
             input: input.chars().collect(),
             position: 0,
             line: 1,
-            char: 1,
+            column: 1,
 
-            start: Position { line: 1, char: 1 },
+            start: Position { line: 1, column: 1 },
         }
     }
 
@@ -26,7 +26,7 @@ impl Lexer {
 
         self.start = Position {
             line: self.line,
-            char: self.char,
+            column: self.column,
         };
 
         if self.position >= self.input.len() {
@@ -75,9 +75,7 @@ impl Lexer {
                     if c.is_ascii_digit() {
                         self.consume(1);
                         let number = self.read_number();
-                        self.token(TokenType::Number(
-                            number.parse::<f64>().unwrap() * -1.0,
-                        ))
+                        self.token(TokenType::Number(number.parse::<f64>().unwrap() * -1.0))
                     } else {
                         self.consume(1);
                         self.token(TokenType::Minus)
@@ -296,9 +294,9 @@ impl Lexer {
         for _ in 0..num {
             if self.position < self.input.len() && self.current_char() == '\n' {
                 self.line += 1;
-                self.char = 1;
+                self.column = 1;
             } else {
-                self.char += 1;
+                self.column += 1;
             }
         }
     }
@@ -310,7 +308,7 @@ impl Lexer {
                 start: self.start.clone(),
                 end: Position {
                     line: self.line,
-                    char: self.char,
+                    column: self.column,
                 },
             },
         }

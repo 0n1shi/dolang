@@ -83,7 +83,7 @@ fn run_file(filename: &str, debug: bool) {
     let mut tokens = Vec::new();
     loop {
         let token = lexer.next_token();
-        if token == token::Token::EOF {
+        if token.token_type == token::TokenType::EOF {
             break; // Stop on EOF
         }
         tokens.push(token);
@@ -137,7 +137,7 @@ fn run_repl(debug: bool) {
         let mut tokens = Vec::new();
         loop {
             let token = lexer.next_token();
-            if token == token::Token::EOF {
+            if token.token_type == token::TokenType::EOF {
                 break; // Stop on EOF
             }
             tokens.push(token);

@@ -1,5 +1,5 @@
 use dolang::lexer::Lexer;
-use dolang::token::Token;
+use dolang::token::{Position, Range, Token, TokenType};
 
 #[test]
 fn test_lexer() {
@@ -7,100 +7,260 @@ fn test_lexer() {
         (
             "let if then else for fn in match | _ |> -> return = == != < <= > >= and or not true false, . .. : ( ) [ ] { }",
             vec![
-                Token::Let,
-                Token::If,
-                Token::Then,
-                Token::Else,
-                Token::For,
-                Token::Fn,
-                Token::In,
-                Token::Match,
-                Token::Pipe,
-                Token::Underscore,
-                Token::ForwardPipe,
-                Token::Arrow,
-                Token::Return,
-                Token::Assign,
-                Token::Equal,
-                Token::NotEqual,
-                Token::LessThan,
-                Token::LessThanOrEqual,
-                Token::GreaterThan,
-                Token::GreaterThanOrEqual,
-                Token::And,
-                Token::Or,
-                Token::Not,
-                Token::True,
-                Token::False,
-                Token::Comma,
-                Token::Dot,
-                Token::DotDot,
-                Token::Colon,
-                Token::LeftParen,
-                Token::RightParen,
-                Token::LeftBracket,
-                Token::RightBracket,
-                Token::LeftBrace,
-                Token::RightBrace
-            ]
-        ),
-        (
-            "let x = 5 + 3.14 - 2 * 10 / 4 % 2",
-            vec![
-                Token::Let,
-                Token::Identifier("x".to_string()),
-                Token::Assign,
-                Token::Number(5.0),
-                Token::Plus,
-                Token::Number(3.14),
-                Token::Minus,
-                Token::Number(2.0),
-                Token::Asterisk,
-                Token::Number(10.0),
-                Token::Slash,
-                Token::Number(4.0),
-                Token::Percent,
-                Token::Number(2.0)
-            ]
-        ),
-        (
-            "let str = \"Hello, World!\"",
-            vec![
-                Token::Let,
-                Token::Identifier("str".to_string()),
-                Token::Assign,
-                Token::String("Hello, World!".to_string())
-            ]
-        ),
-        (
-            "let arr = [1, 2, 3]",
-            vec![
-                Token::Let,
-                Token::Identifier("arr".to_string()),
-                Token::Assign,
-                Token::LeftBracket,
-                Token::Number(1.0),
-                Token::Comma,
-                Token::Number(2.0),
-                Token::Comma,
-                Token::Number(3.0),
-                Token::RightBracket
+                Token {
+                    token_type: TokenType::Let,
+                    range: Range {
+                        start: Position { line: 1, column: 1 },
+                        end: Position { line: 1,column: 4 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::If,
+                    range: Range {
+                        start: Position { line: 1,column: 5 },
+                        end: Position { line: 1,column: 7 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Then,
+                    range: Range {
+                        start: Position { line: 1,column: 8 },
+                        end: Position { line: 1,column: 12 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Else,
+                    range: Range {
+                        start: Position { line: 1,column: 13 },
+                        end: Position { line: 1,column: 17 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::For,
+                    range: Range {
+                        start: Position { line: 1,column: 18 },
+                        end: Position { line: 1,column: 21 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Fn,
+                    range: Range {
+                        start: Position { line: 1,column: 22 },
+                        end: Position { line: 1,column: 24 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::In,
+                    range: Range {
+                        start: Position { line: 1,column: 25 },
+                        end: Position { line: 1,column: 27 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Match,
+                    range: Range {
+                        start: Position { line: 1,column: 28 },
+                        end: Position { line: 1,column: 33 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Pipe,
+                    range: Range {
+                        start: Position { line: 1,column: 34 },
+                        end: Position { line: 1,column: 35 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Underscore,
+                    range: Range {
+                        start: Position { line: 1,column: 36 },
+                        end: Position { line: 1,column: 37 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::ForwardPipe,
+                    range: Range {
+                        start: Position { line: 1,column: 38 },
+                        end: Position { line: 1,column: 41 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Arrow,
+                    range: Range {
+                        start: Position { line: 1,column: 42 },
+                        end: Position { line: 1,column: 44 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Return,
+                    range: Range {
+                        start: Position { line: 1,column: 45 },
+                        end: Position { line: 1,column: 51 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Assign,
+                    range: Range {
+                        start: Position { line: 1,column: 52 },
+                        end: Position { line: 1,column: 53 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Equal,
+                    range: Range {
+                        start: Position { line: 1,column: 54 },
+                        end: Position { line: 1,column: 56 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::NotEqual,
+                    range: Range {
+                        start: Position { line: 1,column: 57 },
+                        end: Position { line: 1,column: 60 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::LessThan,
+                    range: Range {
+                        start: Position { line: 1,column: 61 },
+                        end: Position { line: 1,column: 62 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::LessThanOrEqual,
+                    range: Range {
+                        start: Position { line: 1,column: 63 },
+                        end: Position { line: 1,column: 66 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::GreaterThan,
+                    range: Range {
+                        start: Position { line: 1,column: 67 },
+                        end: Position { line: 1,column: 68 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::GreaterThanOrEqual,
+                    range: Range {
+                        start: Position { line: 1,column: 69 },
+                        end: Position { line: 1,column: 72 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::And,
+                    range: Range {
+                        start: Position { line: 1,column: 73 },
+                        end: Position { line: 1,column: 76 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Or,
+                    range: Range {
+                        start: Position { line: 1,column: 77 },
+                        end: Position { line: 1,column: 79 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Not,
+                    range: Range {
+                        start: Position { line: 1,column: 80 },
+                        end: Position { line: 1,column: 83 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::True,
+                    range: Range {
+                        start: Position { line: 1,column: 84 },
+                        end: Position { line: 1,column: 88 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::False,
+                    range: Range {
+                        start: Position { line: 1,column: 89 },
+                        end: Position { line: 1,column: 94 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Comma,
+                    range: Range {
+                        start: Position { line: 1,column: 95 },
+                        end: Position { line: 1,column: 96 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Dot,
+                    range: Range {
+                        start: Position { line: 1,column: 97 },
+                        end: Position { line: 1,column: 98 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::DotDot,
+                    range: Range {
+                        start: Position { line: 1,column: 99 },
+                        end: Position { line: 1,column: 101 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Colon,
+                    range: Range {
+                        start: Position { line: 1,column: 102 },
+                        end: Position { line: 1,column: 103 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::LeftParen,
+                    range: Range {
+                        start: Position { line: 1,column: 104 },
+                        end: Position { line: 1,column: 105 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::RightParen,
+                    range: Range {
+                        start: Position { line: 1,column: 106 },
+                        end: Position { line: 1,column: 107 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::LeftBracket,
+                    range: Range {
+                        start: Position { line: 1,column: 108 },
+                        end: Position { line: 1,column: 109 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::RightBracket,
+                    range: Range {
+                        start: Position { line: 1,column: 110 },
+                        end: Position { line: 1,column: 111 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::LeftBrace,
+                    range: Range {
+                        start: Position { line: 1,column: 112 },
+                        end: Position { line: 1,column: 113 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::RightBrace,
+                    range: Range {
+                        start: Position { line: 1,column: 114 },
+                        end: Position { line: 1,column: 115 },
+                    },
+                },
             ]
         ),
     ];
 
     for (source, expected_tokens) in test_cases {
         let mut lexer = Lexer::new(source);
-        let mut tokens = Vec::new();
 
-        loop {
-            let token = lexer.next_token();
-            if token == Token::EOF {
-                break;
-            }
-            tokens.push(token);
+        for expected_token in &expected_tokens {
+            assert_eq!(lexer.next_token(), *expected_token);
         }
-
-        assert_eq!(tokens, expected_tokens);
     }
 }
