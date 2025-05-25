@@ -45,23 +45,9 @@ impl LanguageServer for Backend {
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
         let text = params.text_document.text;
-        if text.contains("foo") {
-            self.client
-                .publish_diagnostics(
-                    params.text_document.uri,
-                    vec![Diagnostic {
-                        range: Range {
-                            start: Position::new(0, 0),
-                            end: Position::new(0, 3),
-                        },
-                        severity: Some(DiagnosticSeverity::WARNING),
-                        message: "\"foo\" を使わないでください".to_string(),
-                        ..Default::default()
-                    }],
-                    None,
-                )
-                .await;
-        }
+        self.client
+            .log_message(MessageType::INFO, &format!("Opened document: {}", text))
+            .await;
     }
     async fn completion(&self, _: CompletionParams) -> Result<Option<CompletionResponse>> {
         let items = BUILTIN_FUNCTIONS
