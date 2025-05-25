@@ -1,6 +1,8 @@
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
-use tower_lsp::{Client, LanguageServer, LspService, Server};
+use tower_lsp::{Client, LanguageServer};
+
+use crate::eval::builtin::builtin::BUILTIN_FUNCTIONS;
 
 pub struct Backend {
     pub client: Client,
@@ -14,6 +16,17 @@ impl LanguageServer for Backend {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
                     TextDocumentSyncKind::FULL,
                 )),
+                completion_provider: Some(CompletionOptions {
+                    resolve_provider: Some(true),
+                    trigger_characters: Some(
+                        "abcdefghijklmnopqrstuvwxyz"
+                            .chars()
+                            .map(|c| c.to_string())
+                            .collect(),
+                    ),
+
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
             ..Default::default()
@@ -50,7 +63,17 @@ impl LanguageServer for Backend {
                 .await;
         }
     }
+    async fn completion(&self, _: CompletionParams) -> Result<Option<CompletionResponse>> {
+        let items = BUILTIN_FUNCTIONS
+            .iter()
+            .map(|func| CompletionItem {
+                label: func.name.to_string(),
+                kind: Some(CompletionItemKind::FUNCTION),
+                detail: Some(func.description.to_string()),
+                documentation: Some(Documentation::String(func.description.to_string())),
+                ..Default::default()
+            })
+            .collect();
+        Ok(Some(CompletionResponse::Array(items)))
+    }
 }
-
-#[tokio::main]
-async fn main() {

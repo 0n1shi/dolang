@@ -8,9 +8,11 @@ use std::io::{self, Write};
 
 use tower_lsp::{LspService, Server};
 
+
 const VERSION: &str = "0.1.0";
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     let mut debug = false;
@@ -56,7 +58,7 @@ fn main() {
         return;
     }
     if lsp {
-        run_lsp();
+        run_lsp().await;
         return;
     }
     if repl {
@@ -162,7 +164,7 @@ fn run_repl(debug: bool) {
     }
 }
 
-fn run_lsp() {
+async fn run_lsp() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
@@ -174,7 +176,8 @@ fn show_help() {
     println!("Dolang - A simple programming language");
     println!("Usage:");
     println!("  <filename>: Run a Dolang script");
-    println!("  i: Start the Dolang REPL");
+    println!("  i, repl: Start the Dolang REPL (Read-Eval-Print Loop)");
+    println!("  l, lsp: Start the Dolang Language Server Protocol (LSP)");
     println!("  h, help: Show this help message");
     println!("  v, version: Show the version of Dolang");
 }
