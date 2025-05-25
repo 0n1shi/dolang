@@ -70,7 +70,7 @@ impl LanguageServer for Backend {
                 label: func.name.to_string(),
                 kind: Some(CompletionItemKind::FUNCTION),
                 detail: Some(func.description.to_string()),
-                documentation: Some(Documentation::String(func.description.to_string())),
+                documentation: None,
                 ..Default::default()
             })
             .collect();
