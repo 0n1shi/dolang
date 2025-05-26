@@ -308,7 +308,7 @@ impl Lexer {
                 start: self.start.clone(),
                 end: Position {
                     line: self.line,
-                    column: self.column,
+                    column: self.column - 1,
                 },
             },
         }
