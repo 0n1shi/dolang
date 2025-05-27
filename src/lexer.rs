@@ -7,6 +7,7 @@ pub struct Lexer {
     column: usize,
 
     start: Position,
+    last: Position,
 }
 
 impl Lexer {
@@ -18,6 +19,7 @@ impl Lexer {
             column: 1,
 
             start: Position { line: 1, column: 1 },
+            last: Position { line: 1, column: 1 },
         }
     }
 
@@ -25,6 +27,10 @@ impl Lexer {
         self.skip_whitespace();
 
         self.start = Position {
+            line: self.line,
+            column: self.column,
+        };
+        self.last = Position {
             line: self.line,
             column: self.column,
         };
@@ -284,14 +290,22 @@ impl Lexer {
     }
 
     fn skip_whitespace(&mut self) {
-        while self.position < self.input.len() && self.current_char().is_whitespace() {
+        while self.position < self.input.len()
+            && (self.current_char().is_whitespace() || self.current_char() == '\n')
+        {
             self.consume(1);
         }
     }
 
     fn consume(&mut self, num: usize) {
         self.position += num;
+
         for _ in 0..num {
+            self.last = Position {
+                line: self.line,
+                column: self.column,
+            };
+
             if self.position < self.input.len() && self.current_char() == '\n' {
                 self.line += 1;
                 self.column = 1;
@@ -306,10 +320,7 @@ impl Lexer {
             token_type,
             range: Range {
                 start: self.start.clone(),
-                end: Position {
-                    line: self.line,
-                    column: self.column - 1,
-                },
+                end: self.last.clone(),
             },
         }
     }

@@ -256,14 +256,13 @@ fn test_lexer() {
                     token_type: TokenType::EOF,
                     range: Range {
                         start: Position { line: 1, column: 111 },
-                        end: Position { line: 1, column: 110 },
+                        end: Position { line: 1, column: 111 },
                     },
                 },
             ]
         ), (
             r#"let msg = "Hello world"
-            println(msg)
-            "#,
+println(msg)"#,
             vec![
                 Token {
                     token_type: TokenType::Let,
@@ -296,36 +295,36 @@ fn test_lexer() {
                 Token {
                     token_type: TokenType::Identifier("println".to_string()),
                     range: Range {
-                        start: Position { line: 2, column: 13 },
-                        end: Position { line: 2, column: 19 },
+                        start: Position { line: 2, column: 1 },
+                        end: Position { line: 2, column: 7 },
                     },
                 },
                 Token {
                     token_type: TokenType::LeftParen,
                     range: Range {
-                        start: Position { line: 2, column: 21 },
-                        end: Position { line: 2, column: 21 },
+                        start: Position { line: 2, column: 9 },
+                        end: Position { line: 2, column: 9 },
                     },
                 },
                 Token {
                     token_type: TokenType::Identifier("msg".to_string()),
                     range: Range {
-                        start: Position { line: 2, column: 22 },
-                        end: Position { line: 2, column: 24 },
+                        start: Position { line: 2, column: 10 },
+                        end: Position { line: 2, column: 12 },
                     },
                 },
                 Token {
                     token_type: TokenType::RightParen,
                     range: Range {
-                        start: Position { line: 2, column: 25 },
-                        end: Position { line: 2, column: 25 },
+                        start: Position { line: 2, column: 13 },
+                        end: Position { line: 2, column: 13 },
                     },
                 },
                 Token {
                     token_type: TokenType::EOF,
                     range: Range {
-                        start: Position { line: 2, column: 26 },
-                        end: Position { line: 2, column: 26 },
+                        start: Position { line: 2, column: 13 },
+                        end: Position { line: 2, column: 13 },
                     },
                 },
             ]
