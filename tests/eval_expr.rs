@@ -71,12 +71,13 @@ fn test_eval_expr() {
             Ok(Value::Number(15.0)),
         ),
         (
+            // -5 -> -5
             Expr::Unary {
                 op: UnaryOp::Minus,
                 right: Box::new(Expr::Number(5.0)),
             },
             Ok(Value::Number(-5.0)),
-        ), // -5 -> -5
+        ),
         (Expr::Number(5.0), Ok(Value::Number(5.0))), // 5 -> 5
     ];
 

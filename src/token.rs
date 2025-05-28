@@ -69,4 +69,7 @@ impl Token {
     pub fn is_eof(&self) -> bool {
         matches!(self.token_type, TokenType::EOF)
     }
+    pub fn is_invalid(&self) -> bool {
+        matches!(self.token_type, TokenType::Invalid)
+    }
 }
