@@ -3,8 +3,8 @@ use crate::token::{Position, Range, Token, TokenType};
 pub struct Lexer {
     input: Vec<char>,
     position: usize,
-    line: usize,
-    column: usize,
+    pub line: usize,
+    pub column: usize,
 
     start: Position,
     last: Position,
@@ -228,7 +228,7 @@ impl Lexer {
                 }
 
                 if self.position < self.input.len() {
-                    self.consume(1);
+                    self.consume(1); // Consume the closing quote
                     self.token(TokenType::String(result))
                 } else {
                     self.token(TokenType::Invalid)
@@ -298,19 +298,22 @@ impl Lexer {
     }
 
     fn consume(&mut self, num: usize) {
-        self.position += num;
-
         for _ in 0..num {
             self.last = Position {
                 line: self.line,
                 column: self.column,
             };
 
-            if self.position < self.input.len() && self.current_char() == '\n' {
-                self.line += 1;
-                self.column = 1;
-            } else {
-                self.column += 1;
+            if self.position < self.input.len() {
+                let current_char = self.current_char();
+                self.position += 1;
+
+                if current_char == '\n' {
+                    self.line += 1;
+                    self.column = 1;
+                } else {
+                    self.column += 1;
+                }
             }
         }
     }
