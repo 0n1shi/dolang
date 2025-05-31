@@ -14,6 +14,37 @@ use crate::parser::Parser;
 pub struct Backend {
     pub client: Client,
     pub documents: Arc<RwLock<HashMap<Url, String>>>,
+    pub builtin_items: Arc<RwLock<Vec<CompletionItem>>>,
+}
+
+impl Backend {
+    pub fn new(client: Client) -> Self {
+        let mut items = vec![];
+        for func in BUILTIN_FUNCTIONS.iter() {
+            items.push(CompletionItem {
+                label: func.name.to_string(),
+                kind: Some(CompletionItemKind::FUNCTION),
+                detail: Some(func.description.to_string()),
+                documentation: None,
+                ..Default::default()
+            });
+        }
+        for value in ["true", "false"] {
+            items.push(CompletionItem {
+                label: value.to_string(),
+                kind: Some(CompletionItemKind::VALUE),
+                detail: Some(value.to_string()),
+                documentation: None,
+                ..Default::default()
+            });
+        }
+
+        Backend {
+            client,
+            documents: Arc::new(RwLock::new(HashMap::new())),
+            builtin_items: Arc::new(RwLock::new(items)),
+        }
+    }
 }
 
 #[tower_lsp::async_trait]
@@ -72,16 +103,7 @@ impl LanguageServer for Backend {
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
-        let mut items: Vec<CompletionItem> = BUILTIN_FUNCTIONS
-            .iter()
-            .map(|func| CompletionItem {
-                label: func.name.to_string(),
-                kind: Some(CompletionItemKind::FUNCTION),
-                detail: Some(func.description.to_string()),
-                documentation: None,
-                ..Default::default()
-            })
-            .collect();
+        let mut items: Vec<CompletionItem> = self.builtin_items.read().await.clone();
 
         let uri = params.text_document_position.text_document.uri;
         let documents = self.documents.read().await;
@@ -116,60 +138,6 @@ impl LanguageServer for Backend {
                             label: name.clone(),
                             kind: Some(CompletionItemKind::FUNCTION),
                             detail: Some(format!("Function with params: {:?}", params)),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::If { .. } => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some("If expression".to_string()),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::Match { cond: _, cases } => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some(format!("Match expression with {} cases", cases.len())),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::List(_) | Expr::Record(_) => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some("List or Record".to_string()),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::Identifier(s) => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some(format!("Identifier: {}", s)),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::Boolean(b) => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some(format!("Boolean: {}", b)),
-                            documentation: None,
-                            ..Default::default()
-                        });
-                    }
-                    Expr::Number(n) => {
-                        items.push(CompletionItem {
-                            label: name.clone(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            detail: Some(format!("Number: {}", n)),
                             documentation: None,
                             ..Default::default()
                         });
