@@ -6,8 +6,10 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 
+use crate::ast::{Expr, Stmt};
 use crate::eval::builtin::builtin::BUILTIN_FUNCTIONS;
 use crate::lexer::Lexer;
+use crate::parser::Parser;
 
 pub struct Backend {
     pub client: Client,
@@ -70,7 +72,7 @@ impl LanguageServer for Backend {
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
-        let items = BUILTIN_FUNCTIONS
+        let mut items: Vec<CompletionItem> = BUILTIN_FUNCTIONS
             .iter()
             .map(|func| CompletionItem {
                 label: func.name.to_string(),
@@ -93,6 +95,100 @@ impl LanguageServer for Backend {
                 break;
             }
             tokens.push(token);
+        }
+
+        let mut parser = Parser::new(tokens);
+        let ast = match parser.parse() {
+            Ok(ast) => ast,
+            Err(err) => {
+                self.client
+                    .log_message(MessageType::ERROR, format!("Parse error: {}", err))
+                    .await;
+                return Ok(None);
+            }
+        };
+
+        for stmt in ast.stmts.iter() {
+            match stmt {
+                Stmt::Let { name, val } => match val {
+                    Expr::Func { params, body: _ } => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::FUNCTION),
+                            detail: Some(format!("Function with params: {:?}", params)),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::If { .. } => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some("If expression".to_string()),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::Match { cond: _, cases } => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some(format!("Match expression with {} cases", cases.len())),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::List(_) | Expr::Record(_) => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some("List or Record".to_string()),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::Identifier(s) => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some(format!("Identifier: {}", s)),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::Boolean(b) => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some(format!("Boolean: {}", b)),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    Expr::Number(n) => {
+                        items.push(CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some(format!("Number: {}", n)),
+                            documentation: None,
+                            ..Default::default()
+                        });
+                    }
+                    _ => {
+                        let var = CompletionItem {
+                            label: name.clone(),
+                            kind: Some(CompletionItemKind::VARIABLE),
+                            detail: Some("Variable".to_string()),
+                            documentation: None,
+                            ..Default::default()
+                        };
+                        items.push(var);
+                    }
+                },
+                _ => {
+                    // do nothing for other statements
+                }
+            }
         }
 
         Ok(Some(CompletionResponse::Array(items)))

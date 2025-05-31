@@ -8,7 +8,6 @@ use std::io::{self, Write};
 
 use tower_lsp::{LspService, Server};
 
-
 const VERSION: &str = "0.1.0";
 
 #[tokio::main]
@@ -168,7 +167,10 @@ async fn run_lsp() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::new(|client| Backend { client });
+    let (service, socket) = LspService::new(|client| Backend {
+        client,
+        documents: Default::default(),
+    });
     Server::new(stdin, stdout, socket).serve(service).await;
 }
 
