@@ -24,7 +24,7 @@
 
 <pipe_expr>     ::= <logic_expr> { "|>" <logic_expr> }
 <logic_expr>    ::= <comp_expr> { ("and" | "or") <comp_expr> }
-<comp_expr>     ::= <range_expr> { ("==" | "!=" | "<" | "<=" | ">" | ">=") <range_expr> }
+<comp_expr>     ::= <range_expr> { ("is" | "is not" | "<" | "<=" | ">" | ">=" | "in") <range_expr> }
 <range_expr>    ::= <term_expr> { ".." <term_expr> }
 <term_expr>     ::= <factor_expr> { ("+" | "-") <factor_expr> }
 <factor_expr>   ::= <unary_expr> { ("*" | "/" | "%") <unary_expr> }

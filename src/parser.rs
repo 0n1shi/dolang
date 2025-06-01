@@ -18,7 +18,14 @@ impl Parser {
      * Utilities
      */
     fn current_token_type(&self) -> &TokenType {
-        self.tokens.get(self.position).map_or(&TokenType::EOF, |t| &t.token_type)
+        self.tokens
+            .get(self.position)
+            .map_or(&TokenType::EOF, |t| &t.token_type)
+    }
+    fn next_token_type(&self) -> &TokenType {
+        self.tokens
+            .get(self.position + 1)
+            .map_or(&TokenType::EOF, |t| &t.token_type)
     }
     fn next(&mut self) {
         self.position += 1;
@@ -180,7 +187,9 @@ impl Parser {
     fn parse_logic_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_comp_expr()?;
 
-        if self.current_token_type() == &TokenType::And || self.current_token_type() == &TokenType::Or {
+        if self.current_token_type() == &TokenType::And
+            || self.current_token_type() == &TokenType::Or
+        {
             let op = match self.current_token_type() {
                 TokenType::And => LogicOp::And,
                 TokenType::Or => LogicOp::Or,
@@ -202,8 +211,8 @@ impl Parser {
     fn parse_comp_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_range_expr()?;
         if [
-            TokenType::Equal,
-            TokenType::NotEqual,
+            TokenType::Is,
+            TokenType::Not,
             TokenType::LessThan,
             TokenType::LessThanOrEqual,
             TokenType::GreaterThan,
@@ -212,8 +221,11 @@ impl Parser {
         .contains(self.current_token_type())
         {
             let op = match self.current_token_type() {
-                TokenType::Equal => CompOp::Equal,
-                TokenType::NotEqual => CompOp::NotEqual,
+                TokenType::Is => match self.next_token_type() {
+                    TokenType::Not => CompOp::IsNot,
+                    _ => CompOp::Is,
+                },
+                TokenType::In => CompOp::In,
                 TokenType::LessThan => CompOp::LessThan,
                 TokenType::LessThanOrEqual => CompOp::LessThanOrEqual,
                 TokenType::GreaterThan => CompOp::GreaterThan,
@@ -221,6 +233,9 @@ impl Parser {
                 _ => unreachable!(),
             };
             self.next(); // Consume comparison operator
+            if op == CompOp::IsNot {
+                self.next(); // Consume 'not' for 'is not'
+            }
 
             let right = self.parse_range_expr()?;
 
@@ -250,7 +265,7 @@ impl Parser {
     }
     fn parse_term_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_factor_expr()?;
-        if [TokenType::Plus,TokenType::Minus].contains(self.current_token_type()) {
+        if [TokenType::Plus, TokenType::Minus].contains(self.current_token_type()) {
             let op = match self.current_token_type() {
                 TokenType::Plus => TermOp::Plus,
                 TokenType::Minus => TermOp::Minus,
@@ -271,7 +286,9 @@ impl Parser {
     }
     fn parse_factor_expr(&mut self) -> Result<Expr, String> {
         let left = self.parse_unary_expr()?;
-        if [TokenType::Asterisk,TokenType::Slash,TokenType::Percent].contains(self.current_token_type()) {
+        if [TokenType::Asterisk, TokenType::Slash, TokenType::Percent]
+            .contains(self.current_token_type())
+        {
             let op = match self.current_token_type() {
                 TokenType::Asterisk => FactorOp::Multiply,
                 TokenType::Slash => FactorOp::Divide,
@@ -292,7 +309,7 @@ impl Parser {
         }
     }
     fn parse_unary_expr(&mut self) -> Result<Expr, String> {
-        if [TokenType::Minus,TokenType::Not].contains(self.current_token_type()) {
+        if [TokenType::Minus, TokenType::Not].contains(self.current_token_type()) {
             let op = match self.current_token_type() {
                 TokenType::Minus => UnaryOp::Minus,
                 TokenType::Not => UnaryOp::Not,

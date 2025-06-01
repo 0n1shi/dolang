@@ -25,15 +25,14 @@ pub enum TokenType {
     ForwardPipe,        // |>
     Arrow,              // ->
     Return,             // return
-    Assign,             // =
-    Equal,              // ==
-    NotEqual,           // !=
+    Equal,              // =
     LessThan,           // <
     LessThanOrEqual,    // <=
     GreaterThan,        // >
     GreaterThanOrEqual, // >=
     And,                // and
     Or,                 // or
+    Is,                 // is
     Not,                // not
     True,               // true
     False,              // false

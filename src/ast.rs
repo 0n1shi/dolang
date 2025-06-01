@@ -98,8 +98,9 @@ pub enum Expr {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CompOp {
-    Equal,
-    NotEqual,
+    Is,
+    IsNot,
+    In,
     LessThan,
     LessThanOrEqual,
     GreaterThan,

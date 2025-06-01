@@ -52,6 +52,7 @@ impl Lexer {
                 "else" => self.token(TokenType::Else),
                 "for" => self.token(TokenType::For),
                 "in" => self.token(TokenType::In),
+                "is" => self.token(TokenType::Is),
                 "match" => self.token(TokenType::Match),
                 "return" => self.token(TokenType::Return),
                 "and" => self.token(TokenType::And),
@@ -145,22 +146,8 @@ impl Lexer {
                 self.token(TokenType::Colon)
             }
             '=' => {
-                if let Some('=') = self.peek_char() {
-                    self.consume(2);
-                    self.token(TokenType::Equal)
-                } else {
-                    self.consume(1);
-                    self.token(TokenType::Assign)
-                }
-            }
-            '!' => {
-                if let Some('=') = self.peek_char() {
-                    self.consume(2);
-                    self.token(TokenType::NotEqual)
-                } else {
-                    self.consume(1);
-                    self.token(TokenType::Invalid)
-                }
+                self.consume(1);
+                self.token(TokenType::Equal)
             }
             '<' => {
                 if let Some('=') = self.peek_char() {

@@ -131,18 +131,30 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
             let left_val = eval_expr(left, env)?;
             let right_val = eval_expr(right, env)?;
             match op {
-                CompOp::Equal => match (left_val, right_val) {
+                CompOp::Is => match (left_val, right_val) {
                     (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l == r)),
                     (Value::String(l), Value::String(r)) => Ok(Value::Boolean(l == r)),
                     (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l == r)),
                     _ => Err("Equality comparison requires same type".into()),
                 },
-                CompOp::NotEqual => match (left_val, right_val) {
+                CompOp::IsNot => match (left_val, right_val) {
                     (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l != r)),
                     (Value::String(l), Value::String(r)) => Ok(Value::Boolean(l != r)),
                     (Value::Boolean(l), Value::Boolean(r)) => Ok(Value::Boolean(l != r)),
                     _ => Err("Inequality comparison requires same type".into()),
                 },
+                CompOp::In => match (left_val, right_val) {
+                    (Value::String(s), Value::List(l)) => {
+                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::String(s))))
+                    }
+                    (Value::Number(n), Value::List(l)) => {
+                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::Number(n))))
+                    }
+                    (Value::Record(r), Value::List(l)) => {
+                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::Record(r.clone()))))
+                    }
+                    _ => Err("IN operator requires a list on the right".into()),
+                }
                 CompOp::LessThan => match (left_val, right_val) {
                     (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l < r)),
                     _ => Err("Less than comparison requires number operands".into()),
