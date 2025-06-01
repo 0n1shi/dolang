@@ -145,16 +145,18 @@ pub fn eval_expr(expr: &Expr, env: &mut Env) -> Result<Value, String> {
                 },
                 CompOp::In => match (left_val, right_val) {
                     (Value::String(s), Value::List(l)) => {
-                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::String(s))))
+                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::String(s.clone()))))
                     }
                     (Value::Number(n), Value::List(l)) => {
                         Ok(Value::Boolean(l.iter().any(|v| v == &Value::Number(n))))
                     }
-                    (Value::Record(r), Value::List(l)) => {
-                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::Record(r.clone()))))
+                    (Value::Boolean(b), Value::List(l)) => {
+                        Ok(Value::Boolean(l.iter().any(|v| v == &Value::Boolean(b))))
                     }
+                    (Value::String(s), Value::Record(r)) => Ok(Value::Boolean(r.contains_key(&s))),
+                    (Value::String(s), Value::String(r)) => Ok(Value::Boolean(r.contains(&s))),
                     _ => Err("IN operator requires a list on the right".into()),
-                }
+                },
                 CompOp::LessThan => match (left_val, right_val) {
                     (Value::Number(l), Value::Number(r)) => Ok(Value::Boolean(l < r)),
                     _ => Err("Less than comparison requires number operands".into()),

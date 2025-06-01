@@ -1,4 +1,4 @@
-use crate::token::{TokenType, Token};
+use crate::token::{Token, TokenType};
 
 pub fn print_tokens(tokens: &[Token]) {
     for (i, token) in tokens.iter().enumerate() {
@@ -16,15 +16,14 @@ fn format_token(token: &Token) -> String {
         TokenType::For => "For (for)".to_string(),
         TokenType::Fn => "Fn (fn)".to_string(),
         TokenType::In => "In (in)".to_string(),
+        TokenType::Is => "Is (is)".to_string(),
         TokenType::Match => "Match (match)".to_string(),
         TokenType::Pipe => "Pipe (|)".to_string(),
         TokenType::Underscore => "Underscore (_)".to_string(),
         TokenType::ForwardPipe => "ForwardPipe (|>)".to_string(),
         TokenType::Arrow => "Arrow (->)".to_string(),
         TokenType::Return => "Return (return)".to_string(),
-        TokenType::Assign => "Assign (=)".to_string(),
-        TokenType::Equal => "Equal (==)".to_string(),
-        TokenType::NotEqual => "NotEqual (!=)".to_string(),
+        TokenType::Equal => "Equal (=)".to_string(),
         TokenType::LessThan => "LessThan (<)".to_string(),
         TokenType::LessThanOrEqual => "LessThanOrEqual (<=)".to_string(),
         TokenType::GreaterThan => "GreaterThan (>)".to_string(),

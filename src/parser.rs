@@ -63,7 +63,7 @@ impl Parser {
         };
         self.next(); // Consume identifier
 
-        if self.current_token_type() != &TokenType::Assign {
+        if self.current_token_type() != &TokenType::Equal {
             return Err("Expected '=' after identifier".into());
         }
         self.next(); // Consume '='
