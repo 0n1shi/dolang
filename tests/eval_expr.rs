@@ -35,7 +35,7 @@ fn test_eval_expr() {
                         op: TermOp::Plus,
                         right: Box::new(Expr::Number(5.0)),
                     }),
-                    op: CompOp::Equal,
+                    op: CompOp::Is,
                     right: Box::new(Expr::Number(10.0)),
                 }),
                 op: LogicOp::And,
@@ -47,7 +47,7 @@ fn test_eval_expr() {
             // 5 == 3 -> false
             Expr::Comp {
                 left: Box::new(Expr::Number(5.0)),
-                op: CompOp::Equal,
+                op: CompOp::Is,
                 right: Box::new(Expr::Number(3.0)),
             },
             Ok(Value::Boolean(false)),

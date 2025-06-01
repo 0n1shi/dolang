@@ -23,7 +23,7 @@ println(msg)",
                     },
                 },
                 Token {
-                    token_type: TokenType::Assign,
+                    token_type: TokenType::Equal,
                     range: Range {
                         start: Position { line: 1, column: 9 },
                         end: Position { line: 1, column: 9 },
@@ -67,7 +67,7 @@ println(msg)",
             ]
         ), (
             "let nums = [1, 2, 3, 4, 5]
-let odds = nums |> filter(fn n -> n % 2 != 0)",
+let odds = nums |> filter(fn n -> n % 2 is not 0)",
             vec![
                 Token {
                     token_type: TokenType::Let,
@@ -84,7 +84,7 @@ let odds = nums |> filter(fn n -> n % 2 != 0)",
                     },
                 },
                 Token {
-                    token_type: TokenType::Assign,
+                    token_type: TokenType::Equal,
                     range: Range {
                         start: Position { line: 1, column: 10 },
                         end: Position { line: 1, column: 10 },
@@ -182,7 +182,7 @@ let odds = nums |> filter(fn n -> n % 2 != 0)",
                     },
                 },
                 Token {
-                    token_type: TokenType::Assign,
+                    token_type: TokenType::Equal,
                     range: Range {
                         start: Position { line: 2, column: 10 },
                         end: Position { line: 2, column: 10 },
@@ -259,24 +259,31 @@ let odds = nums |> filter(fn n -> n % 2 != 0)",
                     },
                 },
                 Token {
-                    token_type: TokenType::NotEqual,
+                    token_type: TokenType::Is,
                     range: Range {
                         start: Position { line: 2, column: 41 },
                         end: Position { line: 2, column: 42 },
                     },
                 },
                 Token {
-                    token_type: TokenType::Number(0.0),
+                    token_type: TokenType::Not,
                     range: Range {
                         start: Position { line: 2, column: 44 },
-                        end: Position { line: 2, column: 44 },
+                        end: Position { line: 2, column: 46 },
+                    },
+                },
+                Token {
+                    token_type: TokenType::Number(0.0),
+                    range: Range {
+                        start: Position { line: 2, column: 48 },
+                        end: Position { line: 2, column: 48 },
                     },
                 },
                 Token {
                     token_type: TokenType::RightParen,
                     range: Range {
-                        start: Position { line: 2, column: 45 },
-                        end: Position { line: 2, column: 45 },
+                        start: Position { line: 2, column: 49 },
+                        end: Position { line: 2, column: 49 },
                     },
                 },
             ]

@@ -213,6 +213,7 @@ impl Parser {
         if [
             TokenType::Is,
             TokenType::Not,
+            TokenType::In,
             TokenType::LessThan,
             TokenType::LessThanOrEqual,
             TokenType::GreaterThan,
