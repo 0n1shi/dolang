@@ -11,6 +11,8 @@ use crate::eval::builtin::builtin::BUILTIN_FUNCTIONS;
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 
+use super::keyword::KEYWORDS;
+
 pub struct Backend {
     pub client: Client,
     pub documents: Arc<RwLock<HashMap<Url, String>>>,
@@ -34,6 +36,15 @@ impl Backend {
                 label: value.to_string(),
                 kind: Some(CompletionItemKind::VALUE),
                 detail: Some(value.to_string()),
+                documentation: None,
+                ..Default::default()
+            });
+        }
+        for keyword in KEYWORDS.iter() {
+            items.push(CompletionItem {
+                label: keyword.to_string(),
+                kind: Some(CompletionItemKind::KEYWORD),
+                detail: Some("Keyword".to_string()),
                 documentation: None,
                 ..Default::default()
             });
