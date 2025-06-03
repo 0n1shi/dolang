@@ -43,6 +43,7 @@ pub const KEYWORDS: &[Keyword] = &[
     Keyword {
         name: "or",
         description: "Logical operator that returns true if at least one operand is true.",
+    },
     Keyword {
         name: "not",
         description: "Logical operator that negates the truth value of an operand.",

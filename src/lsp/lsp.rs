@@ -42,9 +42,9 @@ impl Backend {
         }
         for keyword in KEYWORDS.iter() {
             items.push(CompletionItem {
-                label: keyword.to_string(),
+                label: keyword.name.to_string(),
                 kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("Keyword".to_string()),
+                detail: Some(keyword.description.to_string()),
                 documentation: None,
                 ..Default::default()
             });
