@@ -19,6 +19,7 @@ pub enum TokenType {
     For,                // for
     Fn,                 // fn
     In,                 // in
+    Import,             // import
     Match,              // match
     Pipe,               // |
     Underscore,         // _

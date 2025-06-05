@@ -51,6 +51,7 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Stmt, String> {
         match self.current_token_type() {
             TokenType::Let => self.parse_let_stmt(),
+            TokenType::Import => self.parse_import_stmt(),
             _ => self.parse_expr_stmt(),
         }
     }
@@ -70,6 +71,17 @@ impl Parser {
 
         let val = self.parse_expr()?;
         Ok(Stmt::Let { name, val })
+    }
+    fn parse_import_stmt(&mut self) -> Result<Stmt, String> {
+        self.next(); // Consume 'import'
+
+        let module = match self.current_token_type() {
+            TokenType::Identifier(id) => id.clone(),
+            _ => return Err("Expected string after 'import'".into()),
+        };
+        self.next(); // Consume identifier
+
+        Ok(Stmt::Import { module })
     }
     fn parse_expr_stmt(&mut self) -> Result<Stmt, String> {
         let expr = self.parse_expr()?;

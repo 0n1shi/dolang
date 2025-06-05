@@ -1,4 +1,4 @@
-use crate::eval::eval::eval_expr;
+use crate::eval::eval::Evaluator;
 use crate::eval::value::Value;
 
 pub fn map(args: Vec<Value>) -> Result<Value, String> {
@@ -8,7 +8,7 @@ pub fn map(args: Vec<Value>) -> Result<Value, String> {
             for item in items {
                 let mut new_env = env.clone();
                 new_env.set(params[0].clone(), item.clone());
-                let result = eval_expr(&body, &mut new_env)?;
+                let result = Evaluator::new("".to_string()).eval_expr(&body, &mut new_env)?;
                 results.push(result);
             }
             Ok(Value::List(results))
@@ -41,7 +41,7 @@ pub fn filter(args: Vec<Value>) -> Result<Value, String> {
             for item in items {
                 let mut new_env = env.clone();
                 new_env.set(params[0].clone(), item.clone());
-                let result = eval_expr(&body, &mut new_env)?;
+                let result = Evaluator::new("".to_string()).eval_expr(&body, &mut new_env)?;
                 if result == Value::Boolean(true) {
                     results.push(item.clone());
                 }
