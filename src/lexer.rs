@@ -53,6 +53,7 @@ impl Lexer {
                 "for" => self.token(TokenType::For),
                 "in" => self.token(TokenType::In),
                 "is" => self.token(TokenType::Is),
+                "import" => self.token(TokenType::Import),
                 "match" => self.token(TokenType::Match),
                 "return" => self.token(TokenType::Return),
                 "and" => self.token(TokenType::And),

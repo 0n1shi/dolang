@@ -1,7 +1,7 @@
 use dolang::debugger::ast::print_ast;
 use dolang::debugger::token::print_tokens;
 use dolang::eval::env::Env;
-use dolang::eval::eval::eval;
+use dolang::eval::eval::Evaluator;
 use dolang::lsp::lsp::Backend;
 use dolang::{lexer, parser, token};
 use std::io::{self, Write};
@@ -77,6 +77,13 @@ async fn main() {
 }
 
 fn run_file(filename: &str, debug: bool) {
+    let file_path = std::fs::canonicalize(filename).expect("[!] Failed to canonicalize file path");
+    let file_dir = file_path
+        .parent()
+        .expect("[!] Failed to get parent directory")
+        .to_str()
+        .expect("[!] Failed to convert parent directory to string");
+
     let source = std::fs::read_to_string(filename).expect("[!] Failed to read file");
     let mut lexer = lexer::Lexer::new(&source);
     let mut tokens = Vec::new();
@@ -103,9 +110,12 @@ fn run_file(filename: &str, debug: bool) {
         print_ast(&ast);
     }
 
-    eval(ast, &mut Env::new(None)).unwrap_or_else(|e| {
-        eprintln!("[!] Error evaluating input: {}", e);
-    });
+    let mut evaluator = Evaluator::new(file_dir.to_string());
+    evaluator
+        .eval(ast, &mut Env::new(None))
+        .unwrap_or_else(|e| {
+            eprintln!("[!] Error evaluating input: {}", e);
+        });
 }
 
 fn run_repl(debug: bool) {
@@ -157,7 +167,14 @@ fn run_repl(debug: bool) {
             println!("Parsed AST: {:?}", ast);
         }
 
-        eval(ast, &mut env).unwrap_or_else(|e| {
+        let mut evaluator = Evaluator::new(
+            std::env::current_dir()
+                .unwrap_or_else(|_| std::path::PathBuf::from(".")) // Fallback to current directory
+                .to_str()
+                .unwrap_or("")
+                .to_string(),
+        );
+        evaluator.eval(ast, &mut env).unwrap_or_else(|e| {
             eprintln!("Error evaluating input: {}", e);
         });
     }

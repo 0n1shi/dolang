@@ -1,6 +1,8 @@
 <stmt>          ::= <let_stmt>
+                  | <import_stmt>
                   | <expr_stmt>
 <let_stmt>      ::= "let" <id> "=" <expr>
+<import_stmt>   ::= "import" <id>
 <expr_stmt>     ::= <expr>
 
 <expr>  ::= <lambda_expr>
