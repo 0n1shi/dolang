@@ -1,4 +1,4 @@
 import func
 
-let sum = func.add
-println(sum)
+let add = func.add
+println(add(1, 2))

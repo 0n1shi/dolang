@@ -53,7 +53,7 @@ impl Evaluator {
                 imported_evaluator.eval(ast, &mut imported_env)?;
 
                 // init record
-                let imported_values = Value::Record(std::collections::HashMap::new());
+                let mut imported_values = std::collections::HashMap::new();
                 for (name, value) in imported_env.get_all() {
                     match value {
                         Value::BuiltinFunc {
@@ -62,11 +62,11 @@ impl Evaluator {
                             args: _,
                         } => continue, // Skip built-in functions
                         _ => {
-                            // Add imported values to the current environment
-                            env.set(name.clone(), value.clone());
+                            imported_values.insert(name.clone(), value.clone());
                         }
                     }
                 }
+                env.set(module.clone(), Value::Record(imported_values.clone()));
                 Ok(())
             }
             _ => {
