@@ -48,9 +48,25 @@ impl Evaluator {
                     .parse()
                     .map_err(|e| format!("Failed to parse module {}: {}", module, e))?;
 
-                let mut evaluator = Evaluator::new(self.current_dir.clone());
-                evaluator.eval(ast, env)?;
+                let mut imported_evaluator = Evaluator::new(self.current_dir.clone());
+                let mut imported_env = Env::new(Some(Box::new(env.clone())));
+                imported_evaluator.eval(ast, &mut imported_env)?;
 
+                // init record
+                let imported_values = Value::Record(std::collections::HashMap::new());
+                for (name, value) in imported_env.get_all() {
+                    match value {
+                        Value::BuiltinFunc {
+                            name: _,
+                            func: _,
+                            args: _,
+                        } => continue, // Skip built-in functions
+                        _ => {
+                            // Add imported values to the current environment
+                            env.set(name.clone(), value.clone());
+                        }
+                    }
+                }
                 Ok(())
             }
             _ => {
