@@ -17,6 +17,7 @@ fn format_token(token: &Token) -> String {
         TokenType::Fn => "Fn (fn)".to_string(),
         TokenType::In => "In (in)".to_string(),
         TokenType::Is => "Is (is)".to_string(),
+        TokenType::Import => "Import (import)".to_string(),
         TokenType::Match => "Match (match)".to_string(),
         TokenType::Pipe => "Pipe (|)".to_string(),
         TokenType::Underscore => "Underscore (_)".to_string(),

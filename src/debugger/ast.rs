@@ -21,6 +21,9 @@ fn print_stmt(stmt: &Stmt, level: usize) {
             println!("{pad}LetStmt: {name}");
             print_expr(val, level + 1);
         }
+        Stmt::Import { module } => {
+            println!("{pad}ImportStmt: {module}");
+        }
         Stmt::Print(expr) => {
             println!("{pad}PrintStmt:");
             print_expr(expr, level + 1);

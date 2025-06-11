@@ -42,4 +42,7 @@ impl Env {
             None
         }
     }
+    pub fn get_all(&self) -> &std::collections::HashMap<String, Value> {
+        &self.variables
+    }
 }
