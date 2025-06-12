@@ -151,6 +151,22 @@ fn test_parser() {
                 })],
             }),
         ),
+        (
+            "mysql.connect(\"localhost\", \"user\", \"password\")",
+            Ok(AST {
+                stmts: vec![Stmt::Expr(Expr::Call {
+                    name: Box::new(Expr::Access {
+                        record: Box::new(Expr::Identifier("mysql".to_string())),
+                        field: "connect".to_string(),
+                    }),
+                    args: vec![
+                        Expr::String("localhost".to_string()),
+                        Expr::String("user".to_string()),
+                        Expr::String("password".to_string()),
+                    ],
+                })],
+            }),
+        ),
     ];
 
     for (input, expected) in test_cases {
