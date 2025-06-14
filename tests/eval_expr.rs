@@ -1,7 +1,7 @@
 use dolang::ast::Expr;
 use dolang::ast::{CompOp, FactorOp, LogicOp, TermOp, UnaryOp};
 use dolang::eval::env::Env;
-use dolang::eval::eval::eval_expr;
+use dolang::eval::eval::Evaluator;
 use dolang::eval::value::Value;
 
 #[test]
@@ -83,7 +83,13 @@ fn test_eval_expr() {
 
     for (input, expected) in test_cases {
         let mut env = Env::new(None);
-        let result = eval_expr(&input, &mut env);
+        let curr_dir = std::env::current_dir()
+            .expect("Failed to get current directory")
+            .to_str()
+            .unwrap()
+            .to_string();
+        let mut evaluator = Evaluator::new(curr_dir.clone());
+        let result = evaluator.eval_expr(&input, &mut env);
         assert_eq!(result, expected, "Failed for input: {:?}", input);
     }
 }
